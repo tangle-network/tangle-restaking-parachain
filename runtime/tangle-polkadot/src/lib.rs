@@ -27,7 +27,7 @@ use core::convert::TryInto;
 use frame_support::traits::AsEnsureOriginWithArg;
 use tangle_primitives::staking::QueryResponseManager;
 use tangle_primitives::SlpxOperator;
-
+use sp_runtime::traits::AccountIdLookup;
 // A few exports that help ease life for downstream crates.
 pub use frame_support::{
 	construct_runtime, match_types, parameter_types,
@@ -130,10 +130,10 @@ impl_opaque_keys! {
 /// This runtime version.
 #[sp_version::runtime_version]
 pub const VERSION: RuntimeVersion = RuntimeVersion {
-	spec_name: create_runtime_str!("tangle"),
-	impl_name: create_runtime_str!("tangle"),
+	spec_name: create_runtime_str!("tangle-polkadot"),
+	impl_name: create_runtime_str!("tangle-polkadot"),
 	authoring_version: 1,
-	spec_version: 998,
+	spec_version: 1000,
 	impl_version: 0,
 	apis: RUNTIME_API_VERSIONS,
 	transaction_version: 1,
@@ -186,18 +186,36 @@ parameter_types! {
 
 pub struct CallFilter;
 impl Contains<RuntimeCall> for CallFilter {
-	fn contains(call: &RuntimeCall) -> bool {
-		let is_core_call = matches!(
-			call,
-			RuntimeCall::System(_) | RuntimeCall::Timestamp(_) | RuntimeCall::ParachainSystem(_)
-		);
-		if is_core_call {
-			// always allow core call
-			return true;
-		}
+    fn contains(call: &RuntimeCall) -> bool {
+        let is_core_call = matches!(
+            call,
+            RuntimeCall::System(_) | RuntimeCall::Timestamp(_) | RuntimeCall::ParachainSystem(_)
+        );
+        if is_core_call {
+            // always allow core call
+            return true;
+        }
 
-		true
-	}
+		// block all feature pallets
+        match call {
+            RuntimeCall::XTokens(_) |
+            RuntimeCall::Tokens(_) |
+            RuntimeCall::Currencies(_) |
+            //RuntimeCall::UnknownTokens(_) |
+            RuntimeCall::OrmlXcm(_) |
+            RuntimeCall::ZenlinkProtocol(_) |
+            RuntimeCall::MerkleDistributor(_) |
+            RuntimeCall::ZenlinkStableAMM(_) |
+            RuntimeCall::ZenlinkSwapRouter(_) |
+            RuntimeCall::AssetRegistry(_) |
+            RuntimeCall::LstMinting(_) |
+            RuntimeCall::Slp(_) |
+            RuntimeCall::XcmInterface(_) |
+            RuntimeCall::Assets(_) |
+            RuntimeCall::Nfts(_) => false,
+            _ => true,
+        }
+    }
 }
 
 pub struct BaseFilter;
@@ -604,62 +622,63 @@ impl pallet_transaction_payment::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
 }
 
-// impl<LocalCall> frame_system::offchain::CreateSignedTransaction<LocalCall> for Runtime
-// where
-// 	RuntimeCall: From<LocalCall>,
-// {
-// 	fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
-// 		call: RuntimeCall,
-// 		public: <Signature as sp_runtime::traits::Verify>::Signer,
-// 		account: AccountId,
-// 		nonce: Nonce,
-// 	) -> Option<(
-// 		RuntimeCall,
-// 		<UncheckedExtrinsic as sp_runtime::traits::Extrinsic>::SignaturePayload,
-// 	)> {
-// 		// take the biggest period possible.
-// 		let period =
-// 			BlockHashCount::get().checked_next_power_of_two().map(|c| c / 2).unwrap_or(2) as u64;
-// 		let current_block = System::block_number()
-// 			.saturated_into::<u64>()
-// 			// The `System::block_number` is initialized with `n+1`,
-// 			// so the actual block number is `n`.
-// 			.saturating_sub(1);
-// 		let tip = 0;
-// 		let extra: SignedExtra = (
-// 			frame_system::CheckNonZeroSender::<Runtime>::new(),
-// 			frame_system::CheckSpecVersion::<Runtime>::new(),
-// 			frame_system::CheckTxVersion::<Runtime>::new(),
-// 			frame_system::CheckGenesis::<Runtime>::new(),
-// 			frame_system::CheckEra::<Runtime>::from(generic::Era::mortal(period, current_block)),
-// 			frame_system::CheckNonce::<Runtime>::from(nonce),
-// 			frame_system::CheckWeight::<Runtime>::new(),
-// 			pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
-// 		);
-// 		let raw_payload = SignedPayload::new(call, extra)
-// 			.map_err(|e| {
-// 				log::warn!("Unable to create signed payload: {:?}", e);
-// 			})
-// 			.ok()?;
-// 		let signature = raw_payload.using_encoded(|payload| C::sign(payload, public))?;
-// 		let address = AccountIdLookup::unlookup(account);
-// 		let (call, extra, _) = raw_payload.deconstruct();
-// 		Some((call, (address, signature, extra)))
-// 	}
-// }
+impl<LocalCall> frame_system::offchain::CreateSignedTransaction<LocalCall> for Runtime
+where
+	RuntimeCall: From<LocalCall>,
+{
+	fn create_transaction<C: frame_system::offchain::AppCrypto<Self::Public, Self::Signature>>(
+		call: RuntimeCall,
+		public: <Signature as sp_runtime::traits::Verify>::Signer,
+		account: AccountId,
+		nonce: Nonce,
+	) -> Option<(
+		RuntimeCall,
+		<UncheckedExtrinsic as sp_runtime::traits::Extrinsic>::SignaturePayload,
+	)> {
+		// take the biggest period possible.
+		let period =
+			BlockHashCount::get().checked_next_power_of_two().map(|c| c / 2).unwrap_or(2) as u64;
+		let current_block = System::block_number()
+			.saturated_into::<u64>()
+			// The `System::block_number` is initialized with `n+1`,
+			// so the actual block number is `n`.
+			.saturating_sub(1);
+		let tip = 0;
+		let extra: SignedExtra = (
+			frame_system::CheckNonZeroSender::<Runtime>::new(),
+			frame_system::CheckSpecVersion::<Runtime>::new(),
+			frame_system::CheckTxVersion::<Runtime>::new(),
+			frame_system::CheckGenesis::<Runtime>::new(),
+			frame_system::CheckEra::<Runtime>::from(generic::Era::mortal(period, current_block)),
+			frame_system::CheckNonce::<Runtime>::from(nonce),
+			frame_system::CheckWeight::<Runtime>::new(),
+			pallet_transaction_payment::ChargeTransactionPayment::<Runtime>::from(tip),
+			frame_metadata_hash_extension::CheckMetadataHash::<Runtime>::new(true),
+		);
+		let raw_payload = SignedPayload::new(call, extra)
+			.map_err(|e| {
+				log::warn!("Unable to create signed payload: {:?}", e);
+			})
+			.ok()?;
+		let signature = raw_payload.using_encoded(|payload| C::sign(payload, public))?;
+		let address = AccountIdLookup::unlookup(account);
+		let (call, extra, _) = raw_payload.deconstruct();
+		Some((call, (address, signature, extra)))
+	}
+}
 
-// impl frame_system::offchain::SigningTypes for Runtime {
-// 	type Public = <Signature as sp_runtime::traits::Verify>::Signer;
-// 	type Signature = Signature;
-// }
+impl frame_system::offchain::SigningTypes for Runtime {
+	type Public = <Signature as sp_runtime::traits::Verify>::Signer;
+	type Signature = Signature;
+}
 
-// impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
-// where
-// 	RuntimeCall: From<C>,
-// {
-// 	type OverarchingCall = RuntimeCall;
-// 	type Extrinsic = UncheckedExtrinsic;
-// }
+impl<C> frame_system::offchain::SendTransactionTypes<C> for Runtime
+where
+	RuntimeCall: From<C>,
+{
+	type OverarchingCall = RuntimeCall;
+	type Extrinsic = UncheckedExtrinsic;
+}
 
 // culumus runtime start
 parameter_types! {
@@ -1238,6 +1257,12 @@ impl pallet_uniques::Config for Runtime {
 	type Locker = ();
 }
 
+impl pallet_sudo::Config for Runtime {
+    type RuntimeEvent = RuntimeEvent;
+    type RuntimeCall = RuntimeCall;
+	type WeightInfo = ();
+}
+
 construct_runtime! {
 	pub enum Runtime {
 		// Basic stuff
@@ -1292,7 +1317,8 @@ construct_runtime! {
 		Slp: tangle_slp = 116,
 		XcmInterface: tangle_xcm_interface = 117,
 		Assets: pallet_assets = 118,
-		Nfts: pallet_uniques = 119
+		Nfts: pallet_uniques = 119,
+		Sudo: pallet_sudo = 120,
 	}
 }
 
@@ -1324,6 +1350,7 @@ pub type SignedExtra = (
 	frame_system::CheckNonce<Runtime>,
 	frame_system::CheckWeight<Runtime>,
 	pallet_transaction_payment::ChargeTransactionPayment<Runtime>,
+	frame_metadata_hash_extension::CheckMetadataHash<Runtime>,
 );
 /// Unchecked extrinsic type as expected by this runtime.
 pub type UncheckedExtrinsic =
