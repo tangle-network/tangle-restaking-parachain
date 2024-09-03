@@ -1,527 +1,516 @@
-// This file is part of Tangle.
+// This file is part of Substrate.
 
-// Copyright (C) Liebi Technologies PTE. LTD.
-// SPDX-License-Identifier: GPL-3.0-or-later WITH Classpath-exception-2.0
-
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
-// You should have received a copy of the GNU General Public License
-// along with this program. If not, see <https://www.gnu.org/licenses/>.
-
-// Ensure we're `no_std` when compiling for Wasm.
-
-#![cfg(test)]
-#![allow(non_upper_case_globals)]
-use crate as tangle_lst_minting;
-pub use cumulus_primitives_core::ParaId;
+use super::*;
+use crate::{self as pallet_lst};
 use frame_support::traits::AsEnsureOriginWithArg;
-use frame_support::{
-	derive_impl, ord_parameter_types,
-	pallet_prelude::Get,
-	parameter_types,
-	traits::{Everything, Nothing},
-	PalletId,
-};
-use frame_system::EnsureSigned;
-use frame_system::{EnsureRoot, EnsureSignedBy};
-use hex_literal::hex;
-use orml_traits::{location::RelativeReserveProvider, parameter_type_with_key};
-use sp_runtime::{
-	traits::{ConstU32, IdentityLookup},
-	AccountId32, BuildStorage,
-};
-use tangle_asset_registry::AssetIdMaps;
-use tangle_primitives::{
-	currency::{BNC, DOT, FIL, KSM, MOVR, VBNC, VFIL, VKSM, VMOVR},
-	CurrencyId, CurrencyIdMapping, SlpxOperator, TokenSymbol,
-};
-use tangle_primitives::{staking::QueryId, staking::QueryResponseManager};
-use tangle_runtime_common::{micro, milli};
-use xcm::{prelude::*, v3::Weight};
-use xcm_builder::{FixedWeightBounds, FrameTransactionalProcessor};
-use xcm_executor::XcmExecutor;
-
-use crate as lst_minting;
+use frame_support::{assert_ok, derive_impl, parameter_types, PalletId};
+use frame_system::RawOrigin;
+use sp_runtime::traits::ConstU128;
+use sp_runtime::Perbill;
+use sp_runtime::{BuildStorage, FixedU128};
+use sp_staking::{OnStakingUpdate, Stake};
 
 pub type BlockNumber = u64;
-pub type Amount = i128;
+pub type AccountId = u128;
 pub type Balance = u128;
+pub type RewardCounter = FixedU128;
+pub type AssetId = u32;
+// This sneaky little hack allows us to write code exactly as we would do in the pallet in the tests
+// as well, e.g. `StorageItem::<T>::get()`.
+pub type T = Runtime;
+pub type Currency = <T as pallet_lst::Config>::Currency;
 
-pub type AccountId = AccountId32;
+// Ext builder creates a pool with id 1.
+pub fn default_bonded_account() -> AccountId {
+	Lst::create_bonded_account(1)
+}
 
-pub const ALICE: AccountId = AccountId32::new([0u8; 32]);
-pub const BOB: AccountId = AccountId32::new([1u8; 32]);
-pub const CHARLIE: AccountId = AccountId32::new([3u8; 32]);
-
-frame_support::construct_runtime!(
-	pub enum Runtime {
-		System: frame_system,
-		Tokens: orml_tokens,
-		XTokens: orml_xtokens,
-		Balances: pallet_balances,
-		Currencies: tangle_currencies,
-		LstMinting: lst_minting,
-		Slp: tangle_slp,
-		AssetRegistry: tangle_asset_registry,
-		PolkadotXcm: pallet_xcm,
-		Assets: pallet_assets,
-		Uniques: pallet_uniques
-	}
-);
-
-type Block = frame_system::mocking::MockBlock<Runtime>;
+// Ext builder creates a pool with id 1.
+pub fn default_reward_account() -> AccountId {
+	Lst::create_reward_account(1)
+}
 
 parameter_types! {
-	pub const BlockHashCount: u64 = 250;
+	pub static MinJoinBondConfig: Balance = 2;
+	pub static CurrentEra: EraIndex = 0;
+	pub static BondingDuration: EraIndex = 3;
+	pub storage BondedBalanceMap: BTreeMap<AccountId, Balance> = Default::default();
+	// map from a user to a vec of eras and amounts being unlocked in each era.
+	pub storage UnbondingBalanceMap: BTreeMap<AccountId, Vec<(EraIndex, Balance)>> = Default::default();
+	#[derive(Clone, PartialEq)]
+	pub static MaxUnbonding: u32 = 8;
+	pub static StakingMinBond: Balance = 10;
+	pub storage Nominations: Option<Vec<AccountId>> = None;
+}
+pub struct StakingMock;
+
+impl StakingMock {
+	pub(crate) fn set_bonded_balance(who: AccountId, bonded: Balance) {
+		let mut x = BondedBalanceMap::get();
+		x.insert(who, bonded);
+		BondedBalanceMap::set(&x)
+	}
+	/// Mimics a slash towards a pool specified by `pool_id`.
+	/// This reduces the bonded balance of a pool by `amount` and calls [`Lst::on_slash`] to
+	/// enact changes in the nomination-pool pallet.
+	///
+	/// Does not modify any [`SubPools`] of the pool as [`Default::default`] is passed for
+	/// `slashed_unlocking`.
+	pub fn slash_by(pool_id: PoolId, amount: Balance) {
+		let acc = Lst::create_bonded_account(pool_id);
+		let bonded = BondedBalanceMap::get();
+		let pre_total = bonded.get(&acc).unwrap();
+		Self::set_bonded_balance(acc, pre_total - amount);
+		Lst::on_slash(&acc, pre_total - amount, &Default::default(), amount);
+	}
+}
+
+impl sp_staking::StakingInterface for StakingMock {
+	type Balance = Balance;
+	type AccountId = AccountId;
+	type CurrencyToVote = ();
+
+	fn minimum_nominator_bond() -> Self::Balance {
+		StakingMinBond::get()
+	}
+	fn minimum_validator_bond() -> Self::Balance {
+		StakingMinBond::get()
+	}
+
+	fn desired_validator_count() -> u32 {
+		unimplemented!("method currently not used in testing")
+	}
+
+	fn current_era() -> EraIndex {
+		CurrentEra::get()
+	}
+
+	fn bonding_duration() -> EraIndex {
+		BondingDuration::get()
+	}
+
+	fn status(
+		_: &Self::AccountId,
+	) -> Result<sp_staking::StakerStatus<Self::AccountId>, DispatchError> {
+		Nominations::get()
+			.map(sp_staking::StakerStatus::Nominator)
+			.ok_or(DispatchError::Other("NotStash"))
+	}
+
+	#[allow(clippy::option_map_unit_fn)]
+	fn bond_extra(who: &Self::AccountId, extra: Self::Balance) -> DispatchResult {
+		let mut x = BondedBalanceMap::get();
+		x.get_mut(who).map(|v| *v += extra);
+		BondedBalanceMap::set(&x);
+		Ok(())
+	}
+
+	fn unbond(who: &Self::AccountId, amount: Self::Balance) -> DispatchResult {
+		let mut x = BondedBalanceMap::get();
+		*x.get_mut(who).unwrap() = x.get_mut(who).unwrap().saturating_sub(amount);
+		BondedBalanceMap::set(&x);
+
+		let era = Self::current_era();
+		let unlocking_at = era + Self::bonding_duration();
+		let mut y = UnbondingBalanceMap::get();
+		y.entry(*who).or_default().push((unlocking_at, amount));
+		UnbondingBalanceMap::set(&y);
+		Ok(())
+	}
+
+	fn chill(_: &Self::AccountId) -> sp_runtime::DispatchResult {
+		Ok(())
+	}
+
+	fn withdraw_unbonded(who: Self::AccountId, _: u32) -> Result<bool, DispatchError> {
+		let mut unbonding_map = UnbondingBalanceMap::get();
+		let staker_map = unbonding_map.get_mut(&who).ok_or("Nothing to unbond")?;
+
+		let current_era = Self::current_era();
+		staker_map.retain(|(unlocking_at, _amount)| *unlocking_at > current_era);
+
+		UnbondingBalanceMap::set(&unbonding_map);
+		Ok(UnbondingBalanceMap::get().is_empty() && BondedBalanceMap::get().is_empty())
+	}
+
+	fn bond(stash: &Self::AccountId, value: Self::Balance, _: &Self::AccountId) -> DispatchResult {
+		StakingMock::set_bonded_balance(*stash, value);
+		Ok(())
+	}
+
+	fn nominate(_: &Self::AccountId, nominations: Vec<Self::AccountId>) -> DispatchResult {
+		Nominations::set(&Some(nominations));
+		Ok(())
+	}
+
+	#[cfg(feature = "runtime-benchmarks")]
+	fn nominations(_: &Self::AccountId) -> Option<Vec<Self::AccountId>> {
+		Nominations::get()
+	}
+
+	fn stash_by_ctrl(_controller: &Self::AccountId) -> Result<Self::AccountId, DispatchError> {
+		unimplemented!("method currently not used in testing")
+	}
+
+	fn stake(who: &Self::AccountId) -> Result<Stake<Balance>, DispatchError> {
+		match (UnbondingBalanceMap::get().get(who), BondedBalanceMap::get().get(who).copied()) {
+			(None, None) => Err(DispatchError::Other("balance not found")),
+			(Some(v), None) => Ok(Stake {
+				total: v.iter().fold(0u128, |acc, &x| acc.saturating_add(x.1)),
+				active: 0,
+			}),
+			(None, Some(v)) => Ok(Stake { total: v, active: v }),
+			(Some(a), Some(b)) => Ok(Stake {
+				total: a.iter().fold(0u128, |acc, &x| acc.saturating_add(x.1)) + b,
+				active: b,
+			}),
+		}
+	}
+
+	fn election_ongoing() -> bool {
+		unimplemented!("method currently not used in testing")
+	}
+
+	fn force_unstake(_who: Self::AccountId) -> sp_runtime::DispatchResult {
+		unimplemented!("method currently not used in testing")
+	}
+
+	fn is_exposed_in_era(_who: &Self::AccountId, _era: &EraIndex) -> bool {
+		unimplemented!("method currently not used in testing")
+	}
+
+	#[cfg(feature = "runtime-benchmarks")]
+	fn add_era_stakers(
+		_current_era: &EraIndex,
+		_stash: &Self::AccountId,
+		_exposures: Vec<(Self::AccountId, Self::Balance)>,
+	) {
+		unimplemented!("method currently not used in testing")
+	}
+
+	#[cfg(feature = "runtime-benchmarks")]
+	fn set_current_era(_era: EraIndex) {
+		unimplemented!("method currently not used in testing")
+	}
+
+	#[cfg(feature = "runtime-benchmarks")]
+	fn max_exposure_page_size() -> sp_staking::Page {
+		unimplemented!("method currently not used in testing")
+	}
 }
 
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig as frame_system::DefaultConfig)]
 impl frame_system::Config for Runtime {
-	type AccountData = pallet_balances::AccountData<Balance>;
+	type SS58Prefix = ();
+	type BaseCallFilter = frame_support::traits::Everything;
+	type RuntimeOrigin = RuntimeOrigin;
+	type Nonce = u64;
+	type RuntimeCall = RuntimeCall;
+	type Hash = sp_core::H256;
+	type Hashing = sp_runtime::traits::BlakeTwo256;
 	type AccountId = AccountId;
+	type Lookup = sp_runtime::traits::IdentityLookup<Self::AccountId>;
 	type Block = Block;
-	type Lookup = IdentityLookup<Self::AccountId>;
+	type RuntimeEvent = RuntimeEvent;
+	type BlockHashCount = ();
+	type DbWeight = ();
+	type BlockLength = ();
+	type BlockWeights = ();
+	type Version = ();
+	type PalletInfo = PalletInfo;
+	type AccountData = pallet_balances::AccountData<Balance>;
+	type OnNewAccount = ();
+	type OnKilledAccount = ();
+	type SystemWeightInfo = ();
+	type OnSetCode = ();
+	type MaxConsumers = frame_support::traits::ConstU32<16>;
 }
 
 parameter_types! {
-	pub const NativeCurrencyId: CurrencyId = CurrencyId::Native(TokenSymbol::BNC);
-}
-
-pub type AdaptedBasicCurrency =
-	tangle_currencies::BasicCurrencyAdapter<Runtime, Balances, Amount, BlockNumber>;
-
-impl tangle_currencies::Config for Runtime {
-	type GetNativeCurrencyId = NativeCurrencyId;
-	type MultiCurrency = Tokens;
-	type NativeCurrency = AdaptedBasicCurrency;
-	type WeightInfo = ();
-}
-
-parameter_types! {
-	pub const ExistentialDeposit: Balance = 1;
-	// pub const NativeCurrencyId: CurrencyId = CurrencyId::Native(TokenSymbol::BNC);
-	// pub const RelayCurrencyId: CurrencyId = CurrencyId::Token(TokenSymbol::KSM);
-	pub const StableCurrencyId: CurrencyId = CurrencyId::Stable(TokenSymbol::KUSD);
-	// pub SelfParaId: u32 = ParachainInfo::parachain_id().into();
-	pub const PolkadotCurrencyId: CurrencyId = CurrencyId::Token(TokenSymbol::DOT);
+	pub static ExistentialDeposit: Balance = 5;
 }
 
 impl pallet_balances::Config for Runtime {
-	type AccountStore = frame_system::Pallet<Runtime>;
+	type MaxLocks = frame_support::traits::ConstU32<1024>;
+	type MaxReserves = ();
+	type ReserveIdentifier = [u8; 8];
 	type Balance = Balance;
+	type RuntimeEvent = RuntimeEvent;
 	type DustRemoval = ();
-	type RuntimeEvent = RuntimeEvent;
 	type ExistentialDeposit = ExistentialDeposit;
-	type MaxLocks = ();
-	type MaxReserves = ();
-	type ReserveIdentifier = [u8; 8];
+	type AccountStore = System;
 	type WeightInfo = ();
-	type RuntimeHoldReason = RuntimeHoldReason;
+	type FreezeIdentifier = RuntimeFreezeReason;
+	type MaxFreezes = ConstU32<1>;
+	type RuntimeHoldReason = ();
+	type RuntimeFreezeReason = ();
+}
+
+pub struct BalanceToU256;
+impl Convert<Balance, U256> for BalanceToU256 {
+	fn convert(n: Balance) -> U256 {
+		n.into()
+	}
+}
+
+pub struct U256ToBalance;
+impl Convert<U256, Balance> for U256ToBalance {
+	fn convert(n: U256) -> Balance {
+		n.try_into().unwrap()
+	}
+}
+
+parameter_types! {
+	pub static PostUnbondingPoolsWindow: u32 = 2;
+	pub static MaxMetadataLen: u32 = 2;
+	pub static CheckLevel: u8 = 255;
+	pub const PoolsPalletId: PalletId = PalletId(*b"py/nopls");
+}
+
+impl pallet_lst::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = ();
+	type Currency = Balances;
 	type RuntimeFreezeReason = RuntimeFreezeReason;
-	type FreezeIdentifier = ();
-	type MaxFreezes = ConstU32<0>;
-}
-
-orml_traits::parameter_type_with_key! {
-	pub ExistentialDeposits: |currency_id: CurrencyId| -> Balance {
-		env_logger::try_init().unwrap_or(());
-
-		log::debug!(
-			"{:?}",currency_id
-		);
-		match currency_id {
-			&BNC => 10 * milli::<Runtime>(NativeCurrencyId::get()),   // 0.01 BNC
-			&KSM => 0,
-			&VKSM => 0,
-			&FIL => 0,
-			&VFIL => 0,
-			&MOVR => micro::<Runtime>(MOVR),	// MOVR has a decimals of 10e18
-			&VMOVR => micro::<Runtime>(MOVR),	// MOVR has a decimals of 10e18
-			&VBNC => 10 * milli::<Runtime>(NativeCurrencyId::get()),  // 0.01 BNC
-			_ => AssetIdMaps::<Runtime>::get_currency_metadata(*currency_id)
-				.map_or(Balance::max_value(), |metatata| metatata.minimal_balance)
-		}
-	};
-}
-impl orml_tokens::Config for Runtime {
-	type Amount = i128;
-	type Balance = Balance;
-	type CurrencyId = CurrencyId;
-	type DustRemovalWhitelist = Nothing;
-	type RuntimeEvent = RuntimeEvent;
-	type ExistentialDeposits = ExistentialDeposits;
-	type MaxLocks = ConstU32<50>;
-	type MaxReserves = ();
-	type ReserveIdentifier = [u8; 8];
-	type WeightInfo = ();
-	type CurrencyHooks = ();
-}
-
-parameter_type_with_key! {
-	pub ParachainMinFee: |_location: Location| -> Option<u128> {
-		Some(u128::MAX)
-	};
-}
-
-parameter_types! {
-	pub SelfRelativeLocation: Location = Location::here();
-	pub const BaseXcmWeight: Weight = Weight::from_parts(1_000_000_000_u64, 0);
-	pub const MaxAssetsForTransfer: usize = 2;
-}
-
-impl orml_xtokens::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type Balance = Balance;
-	type CurrencyId = CurrencyId;
-	type CurrencyIdConvert = ();
-	type AccountIdToLocation = ();
-	type UniversalLocation = UniversalLocation;
-	type SelfLocation = SelfRelativeLocation;
-	type XcmExecutor = XcmExecutor<XcmConfig>;
-	type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
-	type BaseXcmWeight = BaseXcmWeight;
-	type MaxAssetsForTransfer = MaxAssetsForTransfer;
-	type MinXcmFee = ParachainMinFee;
-	type LocationsFilter = Everything;
-	type ReserveProvider = RelativeReserveProvider;
-	type RateLimiter = ();
-	type RateLimiterId = ();
-}
-
-parameter_types! {
-	pub const MaximumUnlockIdOfUser: u32 = 1_000;
-	pub const MaximumUnlockIdOfTimeUnit: u32 = 1_000;
-	pub const MaxLockRecords: u32 = 64;
-	pub TangleEntranceAccount: PalletId = PalletId(*b"bf/vtkin");
-	pub TangleExitAccount: PalletId = PalletId(*b"bf/vtout");
-	pub IncentivePoolAccount: PalletId = PalletId(*b"bf/inpoo");
-	pub TangleFeeAccount: AccountId = hex!["e4da05f08e89bf6c43260d96f26fffcfc7deae5b465da08669a9d008e64c2c63"].into();
-}
-
-ord_parameter_types! {
-	pub const One: AccountId = ALICE;
-	pub const RelayCurrencyId: CurrencyId = CurrencyId::Token(TokenSymbol::KSM);
-}
-
-impl tangle_lst_minting::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type MultiCurrency = Currencies;
-	type ControlOrigin = EnsureSignedBy<One, AccountId>;
-	type MaximumUnlockIdOfUser = MaximumUnlockIdOfUser;
-	type MaximumUnlockIdOfTimeUnit = MaximumUnlockIdOfTimeUnit;
-	type MaxLockRecords = MaxLockRecords;
-	type EntranceAccount = TangleEntranceAccount;
-	type ExitAccount = TangleExitAccount;
-	type FeeAccount = TangleFeeAccount;
-	type RedeemFeeAccount = TangleFeeAccount;
-	type IncentivePoolAccount = IncentivePoolAccount;
-	type TangleSlp = Slp;
-	type TangleSlpx = SlpxInterface;
-	type RelayChainToken = RelayCurrencyId;
-	type CurrencyIdConversion = AssetIdMaps<Runtime>;
-	type CurrencyIdRegister = AssetIdMaps<Runtime>;
-	type WeightInfo = ();
-	type OnRedeemSuccess = ();
-	type XcmTransfer = XTokens;
-	type AstarParachainId = ConstU32<2007>;
-	type MoonbeamParachainId = ConstU32<2023>;
-	type HydradxParachainId = ConstU32<2034>;
-	type MantaParachainId = ConstU32<2104>;
-	type StakingAgent = Slp;
-	type AssetHandler = Assets;
-	type NftHandler = Uniques;
-	type ItemId = u32;
-	type RedeemNftCollectionId = ConstU32<1>;
-	type InterlayParachainId = ConstU32<2032>;
-	type ChannelCommission = ();
-	type AssetIdMaps = AssetIdMaps<Runtime>;
-}
-
-ord_parameter_types! {
-	pub const CouncilAccount: AccountId = AccountId::from([1u8; 32]);
-}
-impl tangle_asset_registry::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type Currency = Balances;
-	type RegisterOrigin = EnsureSignedBy<CouncilAccount, AccountId>;
-	type WeightInfo = ();
-}
-pub struct ParachainId;
-impl Get<ParaId> for ParachainId {
-	fn get() -> ParaId {
-		2001.into()
-	}
-}
-
-parameter_types! {
-	pub const MaxTypeEntryPerBlock: u32 = 10;
-	pub const MaxRefundPerBlock: u32 = 10;
-	pub const MaxLengthLimit: u32 = 100;
-}
-
-pub struct SubstrateResponseManager;
-impl QueryResponseManager<QueryId, Location, u64, RuntimeCall> for SubstrateResponseManager {
-	fn get_query_response_record(_query_id: QueryId) -> bool {
-		Default::default()
-	}
-	fn create_query_record(
-		_responder: Location,
-		_call_back: Option<RuntimeCall>,
-		_timeout: u64,
-	) -> u64 {
-		Default::default()
-	}
-	fn remove_query_record(_query_id: QueryId) -> bool {
-		Default::default()
-	}
-}
-
-pub struct SlpxInterface;
-impl SlpxOperator<Balance> for SlpxInterface {
-	fn get_moonbeam_transfer_to_fee() -> Balance {
-		Default::default()
-	}
-}
-
-pub const TREASURY_ACCOUNT: AccountId = AccountId32::new([9u8; 32]);
-parameter_types! {
-	pub const TreasuryAccount: AccountId32 = TREASURY_ACCOUNT;
-}
-
-impl tangle_slp::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type RuntimeOrigin = RuntimeOrigin;
-	type RuntimeCall = RuntimeCall;
-	type MultiCurrency = Currencies;
-	type ControlOrigin = EnsureSignedBy<One, AccountId>;
-	type WeightInfo = ();
-	type LstMinting = LstMinting;
-	type AccountConverter = ();
-	type ParachainId = ParachainId;
-	type SubstrateResponseManager = SubstrateResponseManager;
-	type MaxTypeEntryPerBlock = MaxTypeEntryPerBlock;
-	type MaxRefundPerBlock = MaxRefundPerBlock;
-	type ParachainStaking = ();
-	type XcmTransfer = XTokens;
-	type MaxLengthLimit = MaxLengthLimit;
-	type XcmWeightAndFeeHandler = ();
-	type ChannelCommission = ();
-	type AssetIdMaps = AssetIdMaps<Runtime>;
-	type TreasuryAccount = TreasuryAccount;
-}
-
-parameter_types! {
-	// One XCM operation is 200_000_000 XcmWeight, cross-chain transfer ~= 2x of transfer = 3_000_000_000
-	pub UnitWeightCost: Weight = Weight::from_parts(200_000_000, 0);
-	pub const MaxInstructions: u32 = 100;
-	pub UniversalLocation: InteriorLocation = Parachain(2001).into();
-}
-
-pub struct XcmConfig;
-impl xcm_executor::Config for XcmConfig {
-	type AssetClaims = PolkadotXcm;
-	type AssetTransactor = ();
-	type AssetTrap = PolkadotXcm;
-	type Barrier = ();
-	type RuntimeCall = RuntimeCall;
-	type IsReserve = ();
-	type IsTeleporter = ();
-	type UniversalLocation = UniversalLocation;
-	type OriginConverter = ();
-	type ResponseHandler = PolkadotXcm;
-	type SubscriptionService = PolkadotXcm;
-	type Trader = ();
-	type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
-	type XcmSender = ();
-	type PalletInstancesInfo = AllPalletsWithSystem;
-	type MaxAssetsIntoHolding = ConstU32<64>;
-	type FeeManager = ();
-	type MessageExporter = ();
-	type UniversalAliases = Nothing;
-	type CallDispatcher = RuntimeCall;
-	type SafeCallFilter = Everything;
-	type AssetLocker = ();
-	type AssetExchanger = ();
-	type Aliasers = Nothing;
-	type TransactionalProcessor = FrameTransactionalProcessor;
-}
-
-#[cfg(feature = "runtime-benchmarks")]
-parameter_types! {
-	pub ReachableDest: Option<Location> = Some(Parent.into());
-}
-
-impl pallet_xcm::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type ExecuteXcmOrigin = xcm_builder::EnsureXcmOrigin<RuntimeOrigin, ()>;
-	type UniversalLocation = UniversalLocation;
-	type SendXcmOrigin = xcm_builder::EnsureXcmOrigin<RuntimeOrigin, ()>;
-	type Weigher = FixedWeightBounds<UnitWeightCost, RuntimeCall, MaxInstructions>;
-	type XcmExecuteFilter = Nothing;
-	type XcmExecutor = XcmExecutor<XcmConfig>;
-	type XcmReserveTransferFilter = Everything;
-	type XcmRouter = ();
-	type XcmTeleportFilter = Nothing;
-	type RuntimeOrigin = RuntimeOrigin;
-	type RuntimeCall = RuntimeCall;
-	const VERSION_DISCOVERY_QUEUE_SIZE: u32 = 100;
-	type AdvertisedXcmVersion = ConstU32<2>;
-	type Currency = Balances;
-	type CurrencyMatcher = ();
-	type TrustedLockers = ();
-	type SovereignAccountOf = ();
-	type MaxLockers = ConstU32<8>;
-	type WeightInfo = pallet_xcm::TestWeightInfo;
-	type AdminOrigin = EnsureRoot<AccountId>;
-	type MaxRemoteLockConsumers = ConstU32<0>;
-	type RemoteLockConsumerIdentifier = ();
-}
-
-parameter_types! {
-	pub const AssetDeposit: u128 = 1_000_000;
-	pub const MetadataDepositBase: u128 = 1_000_000;
-	pub const MetadataDepositPerByte: u128 = 100_000;
-	pub const AssetAccountDeposit: u128 = 1_000_000;
-	pub const ApprovalDeposit: u128 = 1_000_000;
-	pub const AssetsStringLimit: u32 = 50;
-	pub const RemoveItemsLimit: u32 = 50;
+	type RewardCounter = RewardCounter;
+	type BalanceToU256 = BalanceToU256;
+	type U256ToBalance = U256ToBalance;
+	type Staking = StakingMock;
+	type PostUnbondingPoolsWindow = PostUnbondingPoolsWindow;
+	type PalletId = PoolsPalletId;
+	type MaxMetadataLen = MaxMetadataLen;
+	type MaxUnbonding = MaxUnbonding;
+	type Fungibles = Assets;
+	type AssetId = AssetId;
+	type PoolId = PoolId;
+	type ForceOrigin = frame_system::EnsureRoot<u128>;
+	type MaxPointsToBalance = frame_support::traits::ConstU8<10>;
 }
 
 impl pallet_assets::Config for Runtime {
 	type RuntimeEvent = RuntimeEvent;
-	type Balance = Balance;
-	type AssetId = u32;
-	type Currency = Balances;
-	type CreateOrigin = AsEnsureOriginWithArg<EnsureSigned<AccountId>>;
-	type ForceOrigin = EnsureRoot<AccountId>;
-	type AssetDeposit = AssetDeposit;
-	type MetadataDepositBase = MetadataDepositBase;
-	type MetadataDepositPerByte = MetadataDepositPerByte;
-	type AssetAccountDeposit = AssetAccountDeposit;
-	type ApprovalDeposit = ApprovalDeposit;
-	type StringLimit = AssetsStringLimit;
-	type Freezer = ();
-	type Extra = ();
-	type WeightInfo = ();
-	type RemoveItemsLimit = RemoveItemsLimit;
+	type Balance = u128;
+	type AssetId = AssetId;
 	type AssetIdParameter = u32;
-	type CallbackHandle = ();
-	#[cfg(feature = "runtime-benchmarks")]
-	type BenchmarkHelper = ();
-}
-
-parameter_types! {
-	pub const UniquesCollectionDeposit: Balance = 10;
-	pub const UniquesItemDeposit: Balance = 1_000;
-	pub const UniquesMetadataDepositBase: Balance = 10;
-	pub const UniquesAttributeDepositBase: Balance = 10;
-	pub const UniquesDepositPerByte: Balance = 10;
-}
-
-impl pallet_uniques::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type CollectionId = u32;
-	type ItemId = u32;
 	type Currency = Balances;
-	type ForceOrigin = EnsureRoot<AccountId>;
-	type CollectionDeposit = UniquesCollectionDeposit;
-	type ItemDeposit = UniquesItemDeposit;
-	type MetadataDepositBase = UniquesMetadataDepositBase;
-	type AttributeDepositBase = UniquesAttributeDepositBase;
-	type DepositPerByte = UniquesDepositPerByte;
-	type StringLimit = ConstU32<128>;
-	type KeyLimit = ConstU32<32>;
-	type ValueLimit = ConstU32<64>;
+	type CreateOrigin = AsEnsureOriginWithArg<frame_system::EnsureSigned<u128>>;
+	type ForceOrigin = frame_system::EnsureRoot<u128>;
+	type AssetDeposit = ConstU128<1>;
+	type AssetAccountDeposit = ConstU128<10>;
+	type MetadataDepositBase = ConstU128<1>;
+	type MetadataDepositPerByte = ConstU128<1>;
+	type ApprovalDeposit = ConstU128<1>;
+	type StringLimit = ConstU32<50>;
+	type Freezer = ();
 	type WeightInfo = ();
-	#[cfg(feature = "runtime-benchmarks")]
-	type Helper = ();
-	type CreateOrigin = AsEnsureOriginWithArg<EnsureSigned<AccountId>>;
-	type Locker = ();
+	type CallbackHandle = ();
+	type Extra = ();
+	type RemoveItemsLimit = ConstU32<5>;
 }
 
-#[derive(Default)]
+type Block = frame_system::mocking::MockBlock<Runtime>;
+frame_support::construct_runtime!(
+	pub enum Runtime {
+		System: frame_system,
+		Balances: pallet_balances,
+		Assets: pallet_assets,
+		Lst: pallet_lst,
+	}
+);
+
 pub struct ExtBuilder {
-	endowed_accounts: Vec<(AccountId, CurrencyId, Balance)>,
+	members: Vec<(AccountId, Balance)>,
+	max_members: Option<u32>,
+	max_members_per_pool: Option<u32>,
+	global_max_commission: Option<Perbill>,
 }
 
+impl Default for ExtBuilder {
+	fn default() -> Self {
+		Self {
+			members: Default::default(),
+			max_members: Some(4),
+			max_members_per_pool: Some(3),
+			global_max_commission: Some(Perbill::from_percent(90)),
+		}
+	}
+}
+
+#[cfg_attr(feature = "fuzzing", allow(dead_code))]
 impl ExtBuilder {
-	pub fn balances(mut self, endowed_accounts: Vec<(AccountId, CurrencyId, Balance)>) -> Self {
-		self.endowed_accounts = endowed_accounts;
+	// Add members to pool 0.
+	pub fn add_members(mut self, members: Vec<(AccountId, Balance)>) -> Self {
+		self.members = members;
 		self
 	}
 
-	pub fn one_hundred_for_alice_n_bob(self) -> Self {
-		self.balances(vec![
-			(ALICE, BNC, 1000000000000000000000),
-			(BOB, BNC, 1000000000000),
-			(BOB, VKSM, 1000),
-			(BOB, KSM, 1000000000000),
-			(BOB, MOVR, 1000000000000000000000),
-			(BOB, VFIL, 1000),
-			(BOB, FIL, 100000000000000000000000),
-			(CHARLIE, MOVR, 100000000000000000000000),
-		])
+	pub fn ed(self, ed: Balance) -> Self {
+		ExistentialDeposit::set(ed);
+		self
+	}
+
+	pub fn min_bond(self, min: Balance) -> Self {
+		StakingMinBond::set(min);
+		self
+	}
+
+	pub fn min_join_bond(self, min: Balance) -> Self {
+		MinJoinBondConfig::set(min);
+		self
+	}
+
+	pub fn with_check(self, level: u8) -> Self {
+		CheckLevel::set(level);
+		self
+	}
+
+	pub fn max_members(mut self, max: Option<u32>) -> Self {
+		self.max_members = max;
+		self
+	}
+
+	pub fn max_members_per_pool(mut self, max: Option<u32>) -> Self {
+		self.max_members_per_pool = max;
+		self
+	}
+
+	pub fn global_max_commission(mut self, commission: Option<Perbill>) -> Self {
+		self.global_max_commission = commission;
+		self
 	}
 
 	pub fn build(self) -> sp_io::TestExternalities {
-		let mut t = frame_system::GenesisConfig::<Runtime>::default().build_storage().unwrap();
+		sp_tracing::try_init_simple();
+		let mut storage =
+			frame_system::GenesisConfig::<Runtime>::default().build_storage().unwrap();
 
-		pallet_balances::GenesisConfig::<Runtime> {
-			balances: self
-				.endowed_accounts
-				.clone()
-				.into_iter()
-				.filter(|(_, currency_id, _)| *currency_id == BNC)
-				.map(|(account_id, _, initial_balance)| (account_id, initial_balance))
-				.collect::<Vec<_>>(),
+		let _ = crate::GenesisConfig::<Runtime> {
+			min_join_bond: MinJoinBondConfig::get(),
+			min_create_bond: 2,
+			max_pools: Some(2),
+			max_members_per_pool: self.max_members_per_pool,
+			max_members: self.max_members,
+			global_max_commission: self.global_max_commission,
 		}
-		.assimilate_storage(&mut t)
-		.unwrap();
+		.assimilate_storage(&mut storage);
 
-		orml_tokens::GenesisConfig::<Runtime> {
-			balances: self
-				.endowed_accounts
-				.into_iter()
-				.filter(|(_, currency_id, _)| *currency_id != BNC)
-				.collect::<Vec<_>>(),
-		}
-		.assimilate_storage(&mut t)
-		.unwrap();
+		let mut ext = sp_io::TestExternalities::from(storage);
 
-		tangle_asset_registry::GenesisConfig::<Runtime> {
-			currency: vec![
-				(DOT, 100_000_000, None),
-				(KSM, 10_000_000, None),
-				(BNC, 10_000_000, None),
-				(FIL, 10_000_000, None),
-			],
-			vcurrency: vec![],
-			vsbond: vec![],
-			phantom: Default::default(),
-		}
-		.assimilate_storage(&mut t)
-		.unwrap();
+		ext.execute_with(|| {
+			use frame_support::traits::Currency;
+			// for events to be deposited.
+			frame_system::Pallet::<Runtime>::set_block_number(1);
 
-		t.into()
+			// make a pool
+			let amount_to_bond = Lst::depositor_min_bond();
+			<Runtime as Config>::Currency::make_free_balance_be(&10u32.into(), amount_to_bond * 5);
+			assert_ok!(Lst::create(RawOrigin::Signed(10).into(), amount_to_bond, 900, 901, 902));
+			assert_ok!(Lst::set_metadata(RuntimeOrigin::signed(900), 1, vec![1, 1]));
+			let last_pool = LastPoolId::<Runtime>::get();
+			for (account_id, bonded) in self.members {
+				<Runtime as Config>::Currency::make_free_balance_be(&account_id, bonded * 2);
+				assert_ok!(Lst::join(RawOrigin::Signed(account_id).into(), bonded, last_pool));
+			}
+		});
+
+		ext
+	}
+
+	pub fn build_and_execute(self, test: impl FnOnce()) {
+		self.build().execute_with(|| {
+			test();
+			//Pools::do_try_state(CheckLevel::get()).unwrap();
+		})
 	}
 }
 
-/// Run until a particular block.
-pub fn run_to_block(n: BlockNumber) {
-	use frame_support::traits::Hooks;
-	while System::block_number() <= n {
-		LstMinting::on_finalize(System::block_number());
-		System::on_finalize(System::block_number());
+pub fn unsafe_set_state(pool_id: PoolId, state: PoolState) {
+	BondedPools::<Runtime>::try_mutate(pool_id, |maybe_bonded_pool| {
+		maybe_bonded_pool.as_mut().ok_or(()).map(|bonded_pool| {
+			bonded_pool.state = state;
+		})
+	})
+	.unwrap()
+}
+
+parameter_types! {
+	storage PoolsEvents: u32 = 0;
+	storage BalancesEvents: u32 = 0;
+}
+
+/// Helper to run a specified amount of blocks.
+pub fn run_blocks(n: u64) {
+	let current_block = System::block_number();
+	run_to_block(n + current_block);
+}
+
+/// Helper to run to a specific block.
+pub fn run_to_block(n: u64) {
+	let current_block = System::block_number();
+	assert!(n > current_block);
+	while System::block_number() < n {
+		Lst::on_finalize(System::block_number());
 		System::set_block_number(System::block_number() + 1);
-		System::on_initialize(System::block_number());
-		LstMinting::on_initialize(System::block_number());
+		Lst::on_initialize(System::block_number());
+	}
+}
+
+/// All events of this pallet.
+pub fn pool_events_since_last_call() -> Vec<super::Event<Runtime>> {
+	let events = System::events()
+		.into_iter()
+		.map(|r| r.event)
+		.filter_map(|e| if let RuntimeEvent::Lst(inner) = e { Some(inner) } else { None })
+		.collect::<Vec<_>>();
+	let already_seen = PoolsEvents::get();
+	PoolsEvents::set(&(events.len() as u32));
+	events.into_iter().skip(already_seen as usize).collect()
+}
+
+/// All events of the `Balances` pallet.
+pub fn balances_events_since_last_call() -> Vec<pallet_balances::Event<Runtime>> {
+	let events = System::events()
+		.into_iter()
+		.map(|r| r.event)
+		.filter_map(|e| if let RuntimeEvent::Balances(inner) = e { Some(inner) } else { None })
+		.collect::<Vec<_>>();
+	let already_seen = BalancesEvents::get();
+	BalancesEvents::set(&(events.len() as u32));
+	events.into_iter().skip(already_seen as usize).collect()
+}
+
+/// Same as `fully_unbond`, in permissioned setting.
+pub fn fully_unbond_permissioned(pool_id: PoolId, member: AccountId) -> DispatchResult {
+	let points = Assets::balance(pool_id, member);
+	Lst::unbond(RuntimeOrigin::signed(member), member, pool_id, points)
+}
+
+#[derive(PartialEq, Debug)]
+pub enum RewardImbalance {
+	// There is no reward deficit.
+	Surplus(Balance),
+	// There is a reward deficit.
+	Deficit(Balance),
+}
+
+#[cfg(test)]
+mod test {
+	use super::*;
+	#[test]
+	fn u256_to_balance_convert_works() {
+		assert_eq!(U256ToBalance::convert(0u32.into()), Zero::zero());
+		assert_eq!(U256ToBalance::convert(Balance::MAX.into()), Balance::MAX)
+	}
+
+	#[test]
+	#[should_panic]
+	fn u256_to_balance_convert_panics_correctly() {
+		U256ToBalance::convert(U256::from(Balance::MAX).saturating_add(1u32.into()));
+	}
+
+	#[test]
+	fn balance_to_u256_convert_works() {
+		assert_eq!(BalanceToU256::convert(0u32.into()), U256::zero());
+		assert_eq!(BalanceToU256::convert(Balance::MAX), Balance::MAX.into())
 	}
 }

@@ -1,74 +1,77 @@
 [package]
 name = "tangle-lst-minting"
-version = "0.8.0"
-edition = "2021"
+version = "25.0.0"
+authors.workspace = true
+edition.workspace = true
+license = "Apache-2.0"
+homepage = "https://substrate.io"
+repository.workspace = true
+description = "FRAME nomination pools pallet"
 
 [package.metadata.docs.rs]
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-parity-scale-codec = { workspace = true, features = ["derive"] }
-scale-info = { workspace = true, features = ["derive"] }
-log = { workspace = true }
-frame-support = { workspace = true }
-frame-system = { workspace = true }
-frame-benchmarking = { workspace = true, optional = true }
-tangle-primitives = { workspace = true }
-orml-traits = { workspace = true }
-sp-std = { workspace = true }
-hex-literal = { workspace = true }
-pallet-balances = { workspace = true }
-xcm = { workspace = true }
-cumulus-primitives-core = { workspace = true }
-sp-core = { workspace = true }
-sp-runtime = { workspace = true }
-sp-arithmetic = { workspace = true }
-tangle-asset-registry = { workspace = true }
-parachains-common = { workspace = true }
+# parity
+scale-info = { version = "2.10.0", default-features = false, features = [
+	"derive",
+] }
+codec = { package = "parity-scale-codec", version = "3.6.1", default-features = false, features = [
+	"derive",
+] }
+cfg-if = "1.0"
+smart-default = "0.6.0"
+
+# FRAME
+frame-support = { workspace = true, default-features = false }
+frame-system = { workspace = true, default-features = false }
+sp-runtime = { workspace = true, default-features = false }
+sp-std = { workspace = true, default-features = false }
+sp-staking = { workspace = true, default-features = false }
+sp-core = { workspace = true, default-features = false }
+sp-io = { workspace = true, default-features = false }
+log = { version = "0.4.0", default-features = false }
+pallet-staking = { workspace = true }
+
+# Optional: use for testing and/or fuzzing
+pallet-balances = { workspace = true, optional = true }
+pallet-assets = { workspace = true, optional = true }
+sp-tracing = { workspace = true, optional = true }
 
 [dev-dependencies]
-orml-tokens = { workspace = true }
-tangle-currencies = { workspace = true }
-orml-xtokens = { workspace = true}
-orml-traits = { workspace = true }
-sp-io = { workspace = true }
-sp-runtime = { workspace = true }
-pallet-collective = { workspace = true }
-xcm-executor = { workspace = true }
-xcm-builder = { workspace = true }
-pallet-xcm = { workspace = true }
-xcm = { workspace = true }
+pallet-balances = { workspace = true }
 pallet-assets = { workspace = true }
-pallet-uniques = { workspace = true }
-tangle-asset-registry = { workspace = true }
-tangle-runtime-common = { workspace = true }
-env_logger = { workspace = true }
-tangle-slp = { workspace = true }
+sp-tracing = { workspace = true }
 
 [features]
 default = ["std"]
+fuzzing = ["pallet-balances", "sp-tracing"]
 std = [
-	"parity-scale-codec/std",
-	"scale-info/std",
+	"codec/std",
 	"frame-support/std",
 	"frame-system/std",
-	"frame-benchmarking?/std",
-	"tangle-primitives/std",
-	"orml-traits/std",
-	"sp-std/std",
-	"pallet-balances/std",
-	"xcm/std",
-	"cumulus-primitives-core/std",
+	"log/std",
+	"pallet-balances?/std",
+	"pallet-assets?/std",
+	"scale-info/std",
 	"sp-core/std",
+	"sp-io/std",
 	"sp-runtime/std",
-	"tangle-asset-registry/std",
-	"parachains-common/std"
+	"sp-staking/std",
+	"sp-std/std",
+	"sp-tracing?/std",
+	"pallet-staking/std",
 ]
-
 runtime-benchmarks = [
-	"frame-benchmarking/runtime-benchmarks",
-	"pallet-collective/runtime-benchmarks",
-	"xcm-builder/runtime-benchmarks",
-	"pallet-xcm/runtime-benchmarks",
+	"frame-support/runtime-benchmarks",
+	"frame-system/runtime-benchmarks",
+	"pallet-balances?/runtime-benchmarks",
+	"sp-runtime/runtime-benchmarks",
+	"sp-staking/runtime-benchmarks",
 ]
-try-runtime = ["frame-support/try-runtime"]
+try-runtime = [
+	"frame-support/try-runtime",
+	"frame-system/try-runtime",
+	"pallet-balances?/try-runtime",
+	"sp-runtime/try-runtime",
+]
