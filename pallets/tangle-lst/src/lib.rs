@@ -713,7 +713,6 @@ pub mod pallet {
 				pool_id.into(),
 				&member_account,
 				unbonding_points,
-				Preservation::Preserve,
 				Precision::Exact,
 				Fortitude::Force,
 			)?;
@@ -957,6 +956,7 @@ pub mod pallet {
 			nominator: AccountIdLookupOf<T>,
 			bouncer: AccountIdLookupOf<T>,
 			name: BoundedVec<u8, T::MaxNameLength>,
+			chain_id: u32,
 		) -> DispatchResult {
 			let depositor = ensure_signed(origin)?;
 
@@ -965,7 +965,7 @@ pub mod pallet {
 				Ok(*id)
 			})?;
 
-			Self::do_create(depositor, amount, root, nominator, bouncer, pool_id, name)
+			Self::do_create(depositor, amount, root, nominator, bouncer, pool_id, name, chain_id)
 		}
 
 		/// Create a new delegation pool with a previously used pool id
@@ -984,13 +984,14 @@ pub mod pallet {
 			bouncer: AccountIdLookupOf<T>,
 			pool_id: PoolId,
 			name: BoundedVec<u8, T::MaxNameLength>,
+			chain_id: u32,
 		) -> DispatchResult {
 			let depositor = ensure_signed(origin)?;
 
 			ensure!(!BondedPools::<T>::contains_key(pool_id), Error::<T>::PoolIdInUse);
 			ensure!(pool_id < LastPoolId::<T>::get(), Error::<T>::InvalidPoolId);
 
-			Self::do_create(depositor, amount, root, nominator, bouncer, pool_id, name)
+			Self::do_create(depositor, amount, root, nominator, bouncer, pool_id, name, chain_id)
 		}
 
 		/// Nominate on behalf of the pool.
@@ -1516,6 +1517,7 @@ impl<T: Config> Pallet<T> {
 		bouncer: AccountIdLookupOf<T>,
 		pool_id: PoolId,
 		name: BoundedVec<u8, T::MaxNameLength>,
+		chain_id: u32,
 	) -> DispatchResult {
 		let root = T::Lookup::lookup(root)?;
 		let nominator = T::Lookup::lookup(nominator)?;
@@ -1536,6 +1538,7 @@ impl<T: Config> Pallet<T> {
 			MaxPools::<T>::get().map_or(true, |max_pools| BondedPools::<T>::count() < max_pools),
 			Error::<T>::MaxPools
 		);
+
 		let mut bonded_pool = BondedPool::<T>::new(
 			pool_id,
 			PoolRoles {
@@ -1545,6 +1548,7 @@ impl<T: Config> Pallet<T> {
 				depositor: who.clone(),
 			},
 			name,
+			chain_id,
 		);
 
 		bonded_pool.try_bond_funds(&who, amount, BondType::Create)?;

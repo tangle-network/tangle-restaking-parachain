@@ -6970,6 +6970,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "pallet-tangle-lst"
+version = "25.0.0"
+dependencies = [
+ "cfg-if",
+ "frame-support",
+ "frame-system",
+ "log",
+ "pallet-assets",
+ "pallet-balances",
+ "pallet-staking",
+ "parity-scale-codec",
+ "scale-info",
+ "smart-default",
+ "sp-core",
+ "sp-io",
+ "sp-runtime",
+ "sp-staking",
+ "sp-std",
+ "sp-tracing",
+]
+
+[[package]]
 name = "pallet-timestamp"
 version = "28.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11335,6 +11357,17 @@ name = "smallvec"
 version = "1.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
+
+[[package]]
+name = "smart-default"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "133659a15339456eeeb07572eb02a91c91e9815e9cbc89566944d2c8d3efdbf6"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
 
 [[package]]
 name = "smol"

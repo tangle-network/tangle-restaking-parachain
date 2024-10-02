@@ -9,6 +9,8 @@ pub struct BondedPoolInner<T: Config> {
 	pub commission: Commission<T>,
 	/// See [`PoolRoles`].
 	pub roles: PoolRoles<T::AccountId>,
+	/// ChainId
+	pub chain_id: u32,
 	/// The current state of the pool.
 	pub state: PoolState,
 	/// pool metadata
@@ -55,6 +57,7 @@ impl<T: Config> BondedPool<T> {
 		id: PoolId,
 		roles: PoolRoles<T::AccountId>,
 		name: BoundedVec<u8, T::MaxNameLength>,
+		chain_id: u32,
 	) -> Self {
 		Self {
 			id,
@@ -62,6 +65,7 @@ impl<T: Config> BondedPool<T> {
 				commission: Commission::default(),
 				roles,
 				state: PoolState::Open,
+				chain_id,
 				metadata: PoolMetadata { name },
 			},
 		}

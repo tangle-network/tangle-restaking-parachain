@@ -19,6 +19,7 @@ members = [
 	"pallets/xcm-interface",
 	"pallets/lst-minting",
 	"pallets/slp",
+	"pallets/tangle-lst",
 	"pallets/parachain-staking",
 	"runtime/tangle-polkadot",
 	"integration-tests"
