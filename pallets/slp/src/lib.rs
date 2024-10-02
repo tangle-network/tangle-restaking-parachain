@@ -2359,6 +2359,16 @@ impl<T: Config>
 		let _query_id_hash = <T as frame_system::Config>::Hashing::hash(&query_id.encode());
 		Ok(query_id)
 	}
+
+	fn active_stake(account: &T::AccountId, currency_id: CurrencyIdOf<T>) -> BalanceOf<T> {
+		// Self::get_delegator_ledger(currency_id, account)
+		// 	.map(|ledger| match ledger {
+		// 		Ledger::Substrate(l) => l.active,
+		// 		_ => 0.into(),
+		// 	})
+		// 	.unwrap_or(0.into())
+		Default::default()
+	}
 }
 
 pub struct DerivativeAccountProvider<T, F>(PhantomData<(T, F)>);

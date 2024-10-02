@@ -32,6 +32,10 @@ pub trait StakingAgentDelegator<AccountId, MultiLocation, CurrencyId, Balance, E
 		amount: Option<Balance>,
 		weight_and_fee: Option<(Weight, Balance)>,
 	) -> Result<QueryId, Error>;
+
+	fn active_stake(account: &AccountId, currency_id: CurrencyId) -> Balance;
+
+	fn total_stake(account: &AccountId, currency_id: CurrencyId) -> Balance;
 }
 
 /// Abstraction over a staking agent for a certain POS chain.

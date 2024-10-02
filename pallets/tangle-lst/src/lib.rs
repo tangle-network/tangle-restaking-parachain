@@ -137,6 +137,8 @@ use sp_runtime::FixedPointNumber;
 use sp_runtime::Perbill;
 use sp_staking::{EraIndex, StakingInterface};
 use sp_std::{collections::btree_map::BTreeMap, fmt::Debug, ops::Div, vec::Vec};
+use tangle_primitives::staking::StakingAgentDelegator;
+use xcm::v3::MultiLocation;
 
 /// The log target of this pallet.
 pub const LOG_TARGET: &str = "runtime::nomination-pools";
@@ -240,7 +242,13 @@ pub mod pallet {
 		type U256ToBalance: Convert<U256, BalanceOf<Self>>;
 
 		/// The interface for nominating.
-		type Staking: StakingInterface<Balance = BalanceOf<Self>, AccountId = Self::AccountId>;
+		type Staking: StakingAgentDelegator<
+			Self::AccountId,
+			MultiLocation,
+			Self::AssetId,
+			BalanceOf<Self>,
+			DispatchError,
+		>;
 
 		/// The amount of eras a `SubPools::with_era` pool can exist before it gets merged into the
 		/// `SubPools::no_era` pool. In other words, this is the amount of eras a member will be

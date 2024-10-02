@@ -6989,6 +6989,8 @@ dependencies = [
  "sp-staking",
  "sp-std",
  "sp-tracing",
+ "staging-xcm",
+ "tangle-primitives",
 ]
 
 [[package]]
