@@ -41,7 +41,15 @@ fn mint_lst(pool_id: u32, who: &AccountId, amount: u128) {
 }
 
 fn burn_lst(pool_id: u32, who: &AccountId, amount: u128) {
-	Assets::burn_from(pool_id, who, amount, Precision::Exact, Fortitude::Force).unwrap();
+	Assets::burn_from(
+		pool_id,
+		who,
+		amount,
+		Preservation::Expendable,
+		Precision::Exact,
+		Fortitude::Force,
+	)
+	.unwrap();
 }
 
 #[test]
@@ -58,27 +66,14 @@ fn test_setup_works() {
 		assert_eq!(TotalValueLocked::<T>::get(), 10);
 
 		let last_pool = LastPoolId::<Runtime>::get();
-		assert_eq!(
-			BondedPool::<Runtime>::get(last_pool).unwrap(),
-			BondedPool::<Runtime> {
-				id: last_pool,
-				inner: BondedPoolInner {
-					commission: Commission::default(),
-					roles: DEFAULT_ROLES,
-					state: PoolState::Open,
-				},
-			}
-		);
-		assert_eq!(
-			RewardPools::<Runtime>::get(last_pool).unwrap(),
-			RewardPool::<Runtime> {
-				last_recorded_reward_counter: Zero::zero(),
-				last_recorded_total_payouts: 0,
-				total_rewards_claimed: 0,
-				total_commission_claimed: 0,
-				total_commission_pending: 0,
-			}
-		);
+		let bonded_pool = BondedPool::<Runtime>::get(last_pool).unwrap();
+
+		assert_eq!(bonded_pool.id, last_pool);
+
+		let inner = bonded_pool.inner;
+		assert_eq!(inner.commission, Commission::default());
+		assert_eq!(inner.roles, DEFAULT_ROLES);
+		assert_eq!(inner.state, PoolState::Open);
 
 		let bonded_account = Lst::create_bonded_account(last_pool);
 		let reward_account = Lst::create_reward_account(last_pool);

@@ -1075,7 +1075,7 @@ impl tangle_lst_minting::Config for Runtime {
 	type FeeAccount = TangleFeeAccount;
 	type TangleSlp = Slp;
 	type TangleSlpx = DummySlpxOperator;
-	type WeightInfo = weights::tangle_lst_minting::TangleWeight<Runtime>;
+	type WeightInfo = ();
 	type OnRedeemSuccess = OnRedeemSuccess;
 	type RelayChainToken = RelayCurrencyId;
 	type CurrencyIdConversion = AssetIdMaps<Runtime>;

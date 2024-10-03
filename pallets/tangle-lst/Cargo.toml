@@ -1,5 +1,5 @@
 [package]
-name = "tangle-lst-minting"
+name = "pallet-tangle-lst"
 version = "25.0.0"
 authors.workspace = true
 edition.workspace = true

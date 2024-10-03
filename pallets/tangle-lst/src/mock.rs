@@ -197,6 +197,18 @@ impl sp_staking::StakingInterface for StakingMock {
 	fn max_exposure_page_size() -> sp_staking::Page {
 		unimplemented!("method currently not used in testing")
 	}
+
+	fn update_payee(_stash: &Self::AccountId, _reward_acc: &Self::AccountId) -> DispatchResult {
+		unimplemented!("method currently not used in testing")
+	}
+
+	fn is_virtual_staker(_who: &Self::AccountId) -> bool {
+		false
+	}
+
+	fn slash_reward_fraction() -> Perbill {
+		unimplemented!("method currently not used in testing")
+	}
 }
 
 #[derive_impl(frame_system::config_preludes::TestDefaultConfig as frame_system::DefaultConfig)]
@@ -280,6 +292,7 @@ impl pallet_lst::Config for Runtime {
 	type PalletId = PoolsPalletId;
 	type MaxMetadataLen = MaxMetadataLen;
 	type MaxUnbonding = MaxUnbonding;
+	type MaxNameLength = ConstU32<50>;
 	type Fungibles = Assets;
 	type AssetId = AssetId;
 	type PoolId = PoolId;
@@ -404,7 +417,14 @@ impl ExtBuilder {
 			// make a pool
 			let amount_to_bond = Lst::depositor_min_bond();
 			<Runtime as Config>::Currency::make_free_balance_be(&10u32.into(), amount_to_bond * 5);
-			assert_ok!(Lst::create(RawOrigin::Signed(10).into(), amount_to_bond, 900, 901, 902));
+			assert_ok!(Lst::create(
+				RawOrigin::Signed(10).into(),
+				amount_to_bond,
+				900,
+				901,
+				902,
+				Default::default()
+			));
 			assert_ok!(Lst::set_metadata(RuntimeOrigin::signed(900), 1, vec![1, 1]));
 			let last_pool = LastPoolId::<Runtime>::get();
 			for (account_id, bonded) in self.members {
