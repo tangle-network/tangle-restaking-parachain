@@ -21,7 +21,7 @@ members = [
 	"pallets/slp",
 	"pallets/tangle-lst",
 	"pallets/parachain-staking",
-	"runtime/tangle-polkadot",
+	"runtime/*",
 	"integration-tests"
 ]
 resolver = "2"
@@ -29,7 +29,8 @@ resolver = "2"
 [workspace.dependencies]
 
 # Tangle Runtime
-tangle-polkadot-runtime = { path = "runtime/tangle-polkadot" }
+tangle-polkadot-runtime = { path = "runtime/polkadot" }
+tangle-testnet-runtime = { path = "runtime/testnet" }
 tangle-service = { path = "node/service", default-features = false }
 tangle-cli = { path = "node/cli" }
 tangle-rpc = { path = "node/rpc" }
