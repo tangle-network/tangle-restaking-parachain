@@ -29,7 +29,6 @@ pallet-balances = { workspace = true }
 pallet-utility = { workspace = true }
 polkadot-parachain-primitives = { workspace = true }
 tangle-xcm-interface = { workspace = true }
-tangle-lst-minting = { workspace = true }
 tangle-asset-registry = { workspace = true }
 tangle-parachain-staking = { workspace = true }
 
@@ -69,7 +68,6 @@ std = [
     "pallet-balances/std",
     "pallet-indices/std",
     "pallet-utility/std",
-    "tangle-lst-minting/std",
     "tangle-asset-registry/std",
     "tangle-parachain-staking/std",
     "orml-xtokens/std",
