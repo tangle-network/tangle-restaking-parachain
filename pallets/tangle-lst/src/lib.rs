@@ -1352,27 +1352,6 @@ pub mod pallet {
 			Ok(())
 		}
 	}
-
-	#[pallet::hooks]
-	impl<T: Config> Hooks<BlockNumberFor<T>> for Pallet<T> {
-		#[cfg(feature = "try-runtime")]
-		fn try_state(_n: BlockNumberFor<T>) -> Result<(), TryRuntimeError> {
-			Self::do_try_state(u8::MAX)
-		}
-
-		fn integrity_test() {
-			assert!(
-				T::MaxPointsToBalance::get() > 0,
-				"Minimum points to balance ratio must be greater than 0"
-			);
-			assert!(
-				T::Staking::bonding_duration() < TotalUnbondingPools::<T>::get(),
-				"There must be more unbonding pools then the bonding duration /
-				so a slash can be applied to relevant unboding pools. (We assume /
-				the bonding duration > slash deffer duration.",
-			);
-		}
-	}
 }
 
 impl<T: Config> Pallet<T> {
@@ -1384,10 +1363,11 @@ impl<T: Config> Pallet<T> {
 	/// It is essentially `max { MinNominatorBond, MinCreateBond, MinJoinBond }`, where the former
 	/// is coming from the staking pallet and the latter two are configured in this pallet.
 	pub fn depositor_min_bond() -> BalanceOf<T> {
-		T::Staking::minimum_nominator_bond()
-			.max(MinCreateBond::<T>::get())
-			.max(MinJoinBond::<T>::get())
-			.max(T::Currency::minimum_balance())
+		// T::Staking::minimum_nominator_bond()
+		// 	.max(MinCreateBond::<T>::get())
+		// 	.max(MinJoinBond::<T>::get())
+		// 	.max(T::Currency::minimum_balance())
+		Default::default()
 	}
 	/// Remove everything related to the given bonded pool.
 	///

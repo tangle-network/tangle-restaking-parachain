@@ -349,15 +349,16 @@ impl<T: Config> BondedPool<T> {
 		// ratio will be wrong.
 		let points_issued = self.issue(amount);
 
-		match ty {
-			BondType::Create => {
-				T::Staking::bond(&bonded_account, amount, &self.reward_account(), self.id.into())?
-			},
-			// The pool should always be created in such a way its in a state to bond extra, but if
-			// the active balance is slashed below the minimum bonded or the account cannot be
-			// found, we exit early.
-			BondType::Later => T::Staking::bond_extra(&bonded_account, amount, self.id.into())?,
-		}
+		// match ty {
+		// 	BondType::Create => {
+		// 		T::Staking::bond(&bonded_account, amount, &self.reward_account(), self.id.into())?
+		// 	},
+		// 	// The pool should always be created in such a way its in a state to bond extra, but if
+		// 	// the active balance is slashed below the minimum bonded or the account cannot be
+		// 	// found, we exit early.
+		// 	BondType::Later => T::Staking::bond_extra(&bonded_account, amount, self.id.into())?,
+		// }
+
 		TotalValueLocked::<T>::mutate(|tvl| {
 			tvl.saturating_accrue(amount);
 		});

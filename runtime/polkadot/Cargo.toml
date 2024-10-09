@@ -119,7 +119,7 @@ tangle-currencies = { workspace = true }
 tangle-primitives = { workspace = true }
 tangle-runtime-common = { workspace = true }
 tangle-slp = { workspace = true }
-tangle-lst-minting = { workspace = true }
+# tangle-lst-minting = { workspace = true }
 tangle-xcm-interface = { workspace = true }
 tangle-parachain-staking = { workspace = true }
 
@@ -220,7 +220,7 @@ std = [
 	"tangle-currencies/std",
 	"tangle-runtime-common/std",
 	"tangle-slp/std",
-	"tangle-lst-minting/std",
+	# "tangle-lst-minting/std",
 	"tangle-parachain-staking/std",
 	"tangle-xcm-interface/std",
 	"pallet-asset-rate/std",
@@ -252,7 +252,7 @@ runtime-benchmarks = [
 	"pallet-whitelist/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 	"xcm-builder/runtime-benchmarks",
-	"tangle-lst-minting/runtime-benchmarks",
+	# "tangle-lst-minting/runtime-benchmarks",
 	"tangle-slp/runtime-benchmarks",
 	"tangle-asset-registry/runtime-benchmarks",
 	"tangle-parachain-staking/runtime-benchmarks",
@@ -312,7 +312,7 @@ try-runtime = [
 	"zenlink-stable-amm/try-runtime",
 	"zenlink-swap-router/try-runtime",
 	"tangle-asset-registry/try-runtime",
-	"tangle-lst-minting/try-runtime",
+	# "tangle-lst-minting/try-runtime",
 	"tangle-slp/try-runtime",
 	"tangle-xcm-interface/try-runtime",
 ]
