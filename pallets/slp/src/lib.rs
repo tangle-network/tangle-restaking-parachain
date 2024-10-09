@@ -2360,14 +2360,24 @@ impl<T: Config>
 		Ok(query_id)
 	}
 
-	fn active_stake(account: &T::AccountId, currency_id: CurrencyIdOf<T>) -> BalanceOf<T> {
+	fn active_stake(account: &T::AccountId, currency_id: CurrencyIdOf<T>) -> Result<BalanceOf<T>, DispatchError> {
 		// Self::get_delegator_ledger(currency_id, account)
 		// 	.map(|ledger| match ledger {
 		// 		Ledger::Substrate(l) => l.active,
 		// 		_ => 0.into(),
 		// 	})
 		// 	.unwrap_or(0.into())
-		Default::default()
+		Ok(Default::default())
+	}
+
+	fn total_stake(account: &T::AccountId, currency_id: CurrencyIdOf<T>) -> Result<BalanceOf<T>, DispatchError> {
+		// Self::get_delegator_ledger(currency_id, account)
+		// 	.map(|ledger| match ledger {
+		// 		Ledger::Substrate(l) => l.total,
+		// 		_ => 0.into(),
+		// 	})
+		// 	.unwrap_or(0.into())
+		Ok(Default::default())
 	}
 }
 
