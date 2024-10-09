@@ -394,7 +394,7 @@ impl<T: Config> BondedPool<T> {
 
 		let prev_total =
 			T::Staking::total_stake(&bonded_account, self.id.into()).unwrap_or_default();
-		let outcome = T::Staking::withdraw_unbonded(bonded_account.clone(), num_slashing_spans);
+		let outcome = T::Staking::undelegate(bonded_account.clone(), num_slashing_spans);
 		let diff = prev_total.defensive_saturating_sub(
 			T::Staking::total_stake(&bonded_account, self.id.into()).unwrap_or_default(),
 		);
