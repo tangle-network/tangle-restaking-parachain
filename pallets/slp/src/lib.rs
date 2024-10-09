@@ -2360,7 +2360,10 @@ impl<T: Config>
 		Ok(query_id)
 	}
 
-	fn active_stake(account: &T::AccountId, currency_id: CurrencyIdOf<T>) -> Result<BalanceOf<T>, DispatchError> {
+	fn active_stake(
+		account: &T::AccountId,
+		currency_id: CurrencyIdOf<T>,
+	) -> Result<BalanceOf<T>, DispatchError> {
 		// Self::get_delegator_ledger(currency_id, account)
 		// 	.map(|ledger| match ledger {
 		// 		Ledger::Substrate(l) => l.active,
@@ -2370,7 +2373,10 @@ impl<T: Config>
 		Ok(Default::default())
 	}
 
-	fn total_stake(account: &T::AccountId, currency_id: CurrencyIdOf<T>) -> Result<BalanceOf<T>, DispatchError> {
+	fn total_stake(
+		account: &T::AccountId,
+		currency_id: CurrencyIdOf<T>,
+	) -> Result<BalanceOf<T>, DispatchError> {
 		// Self::get_delegator_ledger(currency_id, account)
 		// 	.map(|ledger| match ledger {
 		// 		Ledger::Substrate(l) => l.total,
