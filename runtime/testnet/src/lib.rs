@@ -1045,39 +1045,39 @@ impl SlpxOperator<u128> for DummySlpxOperator {
 	}
 }
 
-impl tangle_lst_minting::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type MultiCurrency = Currencies;
-	type ControlOrigin = EnsureRoot<AccountId>;
-	type MaximumUnlockIdOfUser = MaximumUnlockIdOfUser;
-	type MaximumUnlockIdOfTimeUnit = MaximumUnlockIdOfTimeUnit;
-	type EntranceAccount = SlpEntrancePalletId;
-	type ExitAccount = SlpExitPalletId;
-	type FeeAccount = TangleFeeAccount;
-	type TangleSlp = Slp;
-	type TangleSlpx = DummySlpxOperator;
-	type WeightInfo = weights::tangle_lst_minting::TangleWeight<Runtime>;
-	type OnRedeemSuccess = OnRedeemSuccess;
-	type RelayChainToken = RelayCurrencyId;
-	type CurrencyIdConversion = AssetIdMaps<Runtime>;
-	type CurrencyIdRegister = AssetIdMaps<Runtime>;
-	type XcmTransfer = XTokens;
-	type AstarParachainId = ConstU32<2007>;
-	type MoonbeamParachainId = ConstU32<2023>;
-	type HydradxParachainId = ConstU32<2034>;
-	type MantaParachainId = ConstU32<2104>;
-	type InterlayParachainId = ConstU32<2092>;
-	type ChannelCommission = ();
-	type MaxLockRecords = ConstU32<100>;
-	type RedeemFeeAccount = TangleFeeAccount;
-	type IncentivePoolAccount = TreasuryPalletId;
-	type AssetIdMaps = AssetIdMaps<Runtime>;
-	type StakingAgent = Slp;
-	type AssetHandler = Assets;
-	type ItemId = u32;
-	type RedeemNftCollectionId = ConstU32<1>;
-	type NftHandler = Nfts;
-}
+// impl tangle_lst_minting::Config for Runtime {
+// 	type RuntimeEvent = RuntimeEvent;
+// 	type MultiCurrency = Currencies;
+// 	type ControlOrigin = EnsureRoot<AccountId>;
+// 	type MaximumUnlockIdOfUser = MaximumUnlockIdOfUser;
+// 	type MaximumUnlockIdOfTimeUnit = MaximumUnlockIdOfTimeUnit;
+// 	type EntranceAccount = SlpEntrancePalletId;
+// 	type ExitAccount = SlpExitPalletId;
+// 	type FeeAccount = TangleFeeAccount;
+// 	type TangleSlp = Slp;
+// 	type TangleSlpx = DummySlpxOperator;
+// 	type WeightInfo = weights::tangle_lst_minting::TangleWeight<Runtime>;
+// 	type OnRedeemSuccess = OnRedeemSuccess;
+// 	type RelayChainToken = RelayCurrencyId;
+// 	type CurrencyIdConversion = AssetIdMaps<Runtime>;
+// 	type CurrencyIdRegister = AssetIdMaps<Runtime>;
+// 	type XcmTransfer = XTokens;
+// 	type AstarParachainId = ConstU32<2007>;
+// 	type MoonbeamParachainId = ConstU32<2023>;
+// 	type HydradxParachainId = ConstU32<2034>;
+// 	type MantaParachainId = ConstU32<2104>;
+// 	type InterlayParachainId = ConstU32<2092>;
+// 	type ChannelCommission = ();
+// 	type MaxLockRecords = ConstU32<100>;
+// 	type RedeemFeeAccount = TangleFeeAccount;
+// 	type IncentivePoolAccount = TreasuryPalletId;
+// 	type AssetIdMaps = AssetIdMaps<Runtime>;
+// 	type StakingAgent = Slp;
+// 	type AssetHandler = Assets;
+// 	type ItemId = u32;
+// 	type RedeemNftCollectionId = ConstU32<1>;
+// 	type NftHandler = Nfts;
+// }
 
 parameter_types! {
 	pub const ClearingDuration: u32 = prod_or_fast!(DAYS, 10 * MINUTES);
@@ -1238,6 +1238,35 @@ impl pallet_uniques::Config for Runtime {
 	type Locker = ();
 }
 
+parameter_types! {
+	pub const PostUnbondingPoolsWindow: u32 = 2;
+	pub const MaxMetadataLen: u32 = 2;
+	pub const CheckLevel: u8 = 255;
+	pub const LstPalletId: PalletId = PalletId(*b"py/tnlst");
+}
+
+impl pallet_tangle_lst::Config for Runtime {
+	type RuntimeEvent = RuntimeEvent;
+	type WeightInfo = ();
+	type Currency = Balances;
+	type RuntimeFreezeReason = RuntimeFreezeReason;
+	type RewardCounter = FixedU128;
+	type BalanceToU256 = BalanceToU256;
+	type U256ToBalance = U256ToBalance;
+	type Staking = Slp;
+	type PostUnbondingPoolsWindow = ConstU32<4>;
+	type PalletId = LstPalletId;
+	type MaxMetadataLen = MaxMetadataLen;
+	// we use the same number of allowed unlocking chunks as with staking.
+	type MaxUnbonding = <Self as pallet_staking::Config>::MaxUnlockingChunks;
+	type Fungibles = Assets;
+	type AssetId = AssetId;
+	type PoolId = AssetId;
+	type MaxNameLength = ConstU32<50>;
+	type ForceOrigin = frame_system::EnsureRoot<AccountId>;
+	type MaxPointsToBalance = frame_support::traits::ConstU8<10>;
+}
+
 construct_runtime! {
 	pub enum Runtime {
 		// Basic stuff
@@ -1288,11 +1317,12 @@ construct_runtime! {
 
 		// tangle modules
 		AssetRegistry: tangle_asset_registry = 114,
-		LstMinting: tangle_lst_minting = 115,
+		LstMinting: pallet_tangle_lst = 115,
 		Slp: tangle_slp = 116,
 		XcmInterface: tangle_xcm_interface = 117,
 		Assets: pallet_assets = 118,
-		Nfts: pallet_uniques = 119
+		Nfts: pallet_uniques = 119,
+		TangleLst: pallet_tangle_lst = 120,
 	}
 }
 
