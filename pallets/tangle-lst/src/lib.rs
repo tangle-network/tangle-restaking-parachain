@@ -725,37 +725,37 @@ pub mod pallet {
 				Fortitude::Force,
 			)?;
 
-			let current_era = T::Staking::current_era();
-			let unbond_era = T::Staking::bonding_duration().saturating_add(current_era);
+			// let current_era = T::Staking::current_era();
+			// let unbond_era = T::Staking::bonding_duration().saturating_add(current_era);
 
-			// Unbond in the actual underlying nominator.
-			let unbonding_balance = bonded_pool.dissolve(unbonding_points);
-			T::Staking::unbond(&bonded_pool.bonded_account(), unbonding_balance)?;
+			// // Unbond in the actual underlying nominator.
+			// let unbonding_balance = bonded_pool.dissolve(unbonding_points);
+			// T::Staking::unbond(&bonded_pool.bonded_account(), unbonding_balance)?;
 
-			// Note that we lazily create the unbonding pools here if they don't already exist
-			let mut sub_pools = SubPoolsStorage::<T>::get(pool_id)
-				.unwrap_or_default()
-				.maybe_merge_pools(current_era);
+			// // Note that we lazily create the unbonding pools here if they don't already exist
+			// let mut sub_pools = SubPoolsStorage::<T>::get(pool_id)
+			// 	.unwrap_or_default()
+			// 	.maybe_merge_pools(current_era);
 
-			// Update the unbond pool associated with the current era with the unbonded funds. Note
-			// that we lazily create the unbond pool if it does not yet exist.
-			if !sub_pools.with_era.contains_key(&unbond_era) {
-				sub_pools
-					.with_era
-					.try_insert(unbond_era, UnbondPool::default())
-					// The above call to `maybe_merge_pools` should ensure there is
-					// always enough space to insert.
-					.defensive_map_err::<Error<T>, _>(|_| {
-						DefensiveError::NotEnoughSpaceInUnbondPool.into()
-					})?;
-			}
+			// // Update the unbond pool associated with the current era with the unbonded funds. Note
+			// // that we lazily create the unbond pool if it does not yet exist.
+			// if !sub_pools.with_era.contains_key(&unbond_era) {
+			// 	sub_pools
+			// 		.with_era
+			// 		.try_insert(unbond_era, UnbondPool::default())
+			// 		// The above call to `maybe_merge_pools` should ensure there is
+			// 		// always enough space to insert.
+			// 		.defensive_map_err::<Error<T>, _>(|_| {
+			// 			DefensiveError::NotEnoughSpaceInUnbondPool.into()
+			// 		})?;
+			// }
 
-			let points_unbonded = sub_pools
-				.with_era
-				.get_mut(&unbond_era)
-				// The above check ensures the pool exists.
-				.defensive_ok_or::<Error<T>>(DefensiveError::PoolNotFound.into())?
-				.issue(unbonding_balance);
+			// let points_unbonded = sub_pools
+			// 	.with_era
+			// 	.get_mut(&unbond_era)
+			// 	// The above check ensures the pool exists.
+			// 	.defensive_ok_or::<Error<T>>(DefensiveError::PoolNotFound.into())?
+			// 	.issue(unbonding_balance);
 
 			// Try and unbond in the member map.
 			UnbondingMembers::<T>::try_mutate(
@@ -1173,22 +1173,6 @@ pub mod pallet {
 
 			bonded_pool.put();
 			Ok(())
-		}
-
-		/// Chill on behalf of the pool.
-		///
-		/// The dispatch origin of this call must be signed by the pool nominator or the pool
-		/// root role, same as [`Pallet::nominate`].
-		///
-		/// This directly forward the call to the staking pallet, on behalf of the pool bonded
-		/// account.
-		#[pallet::call_index(13)]
-		#[pallet::weight(T::WeightInfo::chill())]
-		pub fn chill(origin: OriginFor<T>, pool_id: PoolId) -> DispatchResult {
-			let who = ensure_signed(origin)?;
-			let bonded_pool = BondedPool::<T>::get(pool_id).ok_or(Error::<T>::PoolNotFound)?;
-			ensure!(bonded_pool.can_nominate(&who), Error::<T>::NotNominator);
-			T::Staking::chill(&bonded_pool.bonded_account())
 		}
 
 		/// `origin` bonds funds from `extra` for some pool member `member` into their respective
