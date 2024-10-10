@@ -1,5 +1,5 @@
 [package]
-name = "tangle-polkadot-runtime"
+name = "tangle-testnet-runtime"
 version = "0.8.0"
 
 edition = "2021"
@@ -119,9 +119,9 @@ tangle-currencies = { workspace = true }
 tangle-primitives = { workspace = true }
 tangle-runtime-common = { workspace = true }
 tangle-slp = { workspace = true }
-tangle-lst-minting = { workspace = true }
 tangle-xcm-interface = { workspace = true }
 tangle-parachain-staking = { workspace = true }
+pallet-tangle-lst = { workspace = true }
 
 [build-dependencies]
 substrate-wasm-builder = { workspace = true }
@@ -220,12 +220,12 @@ std = [
 	"tangle-currencies/std",
 	"tangle-runtime-common/std",
 	"tangle-slp/std",
-	"tangle-lst-minting/std",
 	"tangle-parachain-staking/std",
 	"tangle-xcm-interface/std",
 	"pallet-asset-rate/std",
 	"pallet-message-queue/std",
 	"polkadot-runtime-common/std",
+	"pallet-tangle-lst/std",
 ]
 with-tracing = ["frame-executive/with-tracing"]
 
@@ -252,7 +252,6 @@ runtime-benchmarks = [
 	"pallet-whitelist/runtime-benchmarks",
 	"sp-runtime/runtime-benchmarks",
 	"xcm-builder/runtime-benchmarks",
-	"tangle-lst-minting/runtime-benchmarks",
 	"tangle-slp/runtime-benchmarks",
 	"tangle-asset-registry/runtime-benchmarks",
 	"tangle-parachain-staking/runtime-benchmarks",
@@ -312,7 +311,6 @@ try-runtime = [
 	"zenlink-stable-amm/try-runtime",
 	"zenlink-swap-router/try-runtime",
 	"tangle-asset-registry/try-runtime",
-	"tangle-lst-minting/try-runtime",
 	"tangle-slp/try-runtime",
 	"tangle-xcm-interface/try-runtime",
 ]
