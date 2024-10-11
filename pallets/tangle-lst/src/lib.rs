@@ -758,36 +758,36 @@ pub mod pallet {
 			// 	.issue(unbonding_balance);
 
 			// Try and unbond in the member map.
-			UnbondingMembers::<T>::try_mutate(
-				member_account.clone(),
-				|member| -> DispatchResult {
-					let member = member.get_or_insert_with(|| PoolMember {
-						pool_id,
-						unbonding_eras: Default::default(),
-					});
-					member
-						.unbonding_eras
-						.try_insert(unbond_era, points_unbonded)
-						.map(|old| {
-							if old.is_some() {
-								defensive!("value checked to not exist in the map; qed");
-							}
-						})
-						.map_err(|_| Error::<T>::MaxUnbondingLimit)?;
-					Ok(())
-				},
-			)?;
+			// UnbondingMembers::<T>::try_mutate(
+			// 	member_account.clone(),
+			// 	|member| -> DispatchResult {
+			// 		let member = member.get_or_insert_with(|| PoolMember {
+			// 			pool_id,
+			// 			unbonding_eras: Default::default(),
+			// 		});
+			// 		member
+			// 			.unbonding_eras
+			// 			.try_insert(unbond_era, points_unbonded)
+			// 			.map(|old| {
+			// 				if old.is_some() {
+			// 					defensive!("value checked to not exist in the map; qed");
+			// 				}
+			// 			})
+			// 			.map_err(|_| Error::<T>::MaxUnbondingLimit)?;
+			// 		Ok(())
+			// 	},
+			// )?;
 
-			Self::deposit_event(Event::<T>::Unbonded {
-				member: member_account.clone(),
-				pool_id,
-				points: points_unbonded,
-				balance: unbonding_balance,
-				era: unbond_era,
-			});
+			// Self::deposit_event(Event::<T>::Unbonded {
+			// 	member: member_account.clone(),
+			// 	pool_id,
+			// 	points: points_unbonded,
+			// 	balance: unbonding_balance,
+			// 	era: unbond_era,
+			// });
 
 			// Now that we know everything has worked write the items to storage.
-			SubPoolsStorage::insert(pool_id, sub_pools);
+			//SubPoolsStorage::insert(pool_id, sub_pools);
 			Ok(())
 		}
 
