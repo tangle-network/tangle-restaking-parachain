@@ -1383,10 +1383,6 @@ impl<T: Config> Pallet<T> {
 			frame_system::Pallet::<T>::consumers(&bonded_account) == 0,
 			"bonded account of dissolving pool should have no consumers"
 		);
-		defensive_assert!(
-			T::Staking::total_stake(&bonded_account).unwrap_or_default() == Zero::zero(),
-			"dissolving pool should not have any stake in the staking pallet"
-		);
 
 		// This shouldn't fail, but if it does we don't really care. Remaining balance can consist
 		// of unclaimed pending commission, erroneous transfers to the reward account, etc.
