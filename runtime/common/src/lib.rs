@@ -35,20 +35,6 @@ pub mod currency_adapter;
 #[cfg(test)]
 mod tests;
 
-pub struct RelaychainBlockNumberProvider<T>(sp_std::marker::PhantomData<T>);
-
-impl<T: cumulus_pallet_parachain_system::Config> BlockNumberProvider
-	for RelaychainBlockNumberProvider<T>
-{
-	type BlockNumber = BlockNumber;
-
-	fn current_block_number() -> Self::BlockNumber {
-		cumulus_pallet_parachain_system::Pallet::<T>::validation_data()
-			.map(|d| d.relay_parent_number)
-			.unwrap_or_default()
-	}
-}
-
 parameter_types! {
 	/// The portion of the `NORMAL_DISPATCH_RATIO` that we adjust the fees with. Blocks filled less
 	/// than this will decrease the weight and more will increase.
@@ -117,18 +103,4 @@ pub fn millicent<T: Config>(currency_id: CurrencyId) -> Balance {
 
 pub fn microcent<T: Config>(currency_id: CurrencyId) -> Balance {
 	millicent::<T>(currency_id) / 1000
-}
-
-pub struct RelayChainBlockNumberProvider<T>(sp_std::marker::PhantomData<T>);
-
-impl<T: cumulus_pallet_parachain_system::Config> BlockNumberProvider
-	for RelayChainBlockNumberProvider<T>
-{
-	type BlockNumber = BlockNumber;
-
-	fn current_block_number() -> Self::BlockNumber {
-		cumulus_pallet_parachain_system::Pallet::<T>::validation_data()
-			.map(|d| d.relay_parent_number)
-			.unwrap_or_default()
-	}
 }

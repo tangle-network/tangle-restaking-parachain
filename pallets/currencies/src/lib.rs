@@ -679,17 +679,18 @@ impl<T: Config> fungibles::Mutate<T::AccountId> for Pallet<T> {
 		asset_id: Self::AssetId,
 		who: &T::AccountId,
 		amount: Self::Balance,
+		preservation: Preservation,
 		precision: Precision,
 		fortitude: Fortitude,
 	) -> Result<Self::Balance, DispatchError> {
 		match asset_id {
 			id if id == T::GetNativeCurrencyId::get() => {
 				<T::NativeCurrency as fungible::Mutate<_>>::burn_from(
-					who, amount, precision, fortitude,
+					who, amount, preservation, precision, fortitude,
 				)
 			},
 			_ => <T::MultiCurrency as fungibles::Mutate<_>>::burn_from(
-				asset_id, who, amount, precision, fortitude,
+				asset_id, who, amount, preservation, precision, fortitude,
 			),
 		}
 	}
@@ -882,6 +883,7 @@ where
 			beneficiary,
 			value,
 			status,
+
 		)
 	}
 }
@@ -1258,10 +1260,11 @@ where
 	fn burn_from(
 		who: &T::AccountId,
 		amount: Self::Balance,
+		preservation: Preservation,
 		precision: Precision,
 		fortitude: Fortitude,
 	) -> Result<Self::Balance, DispatchError> {
-		<Currency as fungible::Mutate<_>>::burn_from(who, amount, precision, fortitude)
+		<Currency as fungible::Mutate<_>>::burn_from(who, amount, preservation, precision, fortitude)
 	}
 
 	fn transfer(
