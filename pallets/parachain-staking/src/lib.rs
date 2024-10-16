@@ -87,7 +87,7 @@ pub mod pallet {
 	};
 	use frame_system::pallet_prelude::*;
 	use pallet_session::ShouldEndSession;
-	// use parity_scale_codec::Decode;
+	// use codec::Decode;
 	use sp_runtime::{
 		traits::{AccountIdConversion, Saturating, Zero},
 		Perbill, Percent, Permill,

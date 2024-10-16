@@ -3,7 +3,7 @@ version = "0.1.0"
 authors = ["Webb Technologies Inc."]
 edition = "2021"
 license = "Unlicense"
-homepage = "https://tangle.finance"
+homepage = "https://tangle.network"
 repository = "https://github.com/webb-tools/tangle-restaking-parachain"
 
 cargo-features = ["resolver"]
@@ -121,6 +121,7 @@ sp-block-builder = { version = "34.0.0", default-features = false }
 sp-blockchain = { version = "37.0.0", default-features = false }
 sp-consensus = { version = "0.40.0", default-features = false }
 sp-consensus-aura = { version = "0.40.0", default-features = false }
+sp-consensus-beefy = { version = "22.0.0", default-features = false }
 sp-consensus-slots = { version = "0.40.0", default-features = false }
 sp-core = { version = "34.0.0", default-features = false }
 sp-debug-derive = { version = "14.0.0", default-features = false }
@@ -165,8 +166,8 @@ cumulus-relay-chain-interface = { version = "0.17.0" }
 cumulus-relay-chain-minimal-node = { version = "0.17.0" }
 cumulus-relay-chain-rpc-interface = { version = "0.17.0" }
 cumulus-pallet-session-benchmarking = { version = "18.0.0" }
-cumulus-primitives-storage-weight-reclaim = { version = "7.0.0" }
-cumulus-primitives-aura = { version = "0.15.0" }
+cumulus-primitives-storage-weight-reclaim = { version = "7.0.0", default-features = false }
+cumulus-primitives-aura = { version = "0.15.0", default-features = false }
 frame-benchmarking-cli = { version = "42.0.0" }
 node-inspect = { version = "0.22.0", package = "staging-node-inspect" }
 pallet-transaction-payment-rpc = { version = "40.0.0" }
@@ -175,10 +176,9 @@ sc-basic-authorship = { version = "0.44.0" }
 sc-chain-spec = { version = "37.0.0" }
 sc-cli = { version = "0.46.0" }
 sc-client-api = { version = "37.0.0" }
-sc-consensus = { version = "0.43.0" }
-sc-consensus-aura = { version = "0.44.0" }
-sc-consensus-grandpa = { version = "0.29.0" }
-sc-consensus-manual-seal = { version = "0.45.0" }
+sc-consensus = { version = "0.43.0", default-features = false }
+sc-consensus-aura = { version = "0.44.0", default-features = false }
+sc-consensus-manual-seal = { version = "0.45.0", default-features = false }
 sc-consensus-slots = { version = "0.43.0" }
 sc-executor = { version = "0.40.0" }
 sc-keystore = { version = "33.0.0" }
@@ -216,7 +216,7 @@ futures = { version =  "0.3.30" }
 hex = { version = "0.4.3", default-features = false }
 hex-literal = { version = "0.4.1" }
 impl-trait-for-tuples = { version = "0.2.2" }
-jsonrpsee = { version = "0.20.3" }
+jsonrpsee = { version = "0.23.2" }
 log = { version = "0.4.22", default-features = false }
 num-bigint = { version = "0.4.6", default-features = false }
 num-traits = { version = "0.2.19", default-features = false }
@@ -241,63 +241,3 @@ split-debuginfo = "unpacked"
 [profile.release]
 opt-level = 3
 panic = "unwind"
-
-[profile.production]
-codegen-units = 1
-inherits = "release"
-lto = true
-
-# The list of dependencies below (which can be both direct and indirect dependencies) are crates
-# that are suspected to be CPU-intensive, and that are unlikely to require debugging (as some of
-# their debug info might be missing) or to require to be frequently recompiled. We compile these
-# dependencies with `opt-level=3` even in "dev" mode in order to make "dev" mode more usable.
-# The majority of these crates are cryptographic libraries.
-#
-# Note that this does **not** affect crates that depend on Substrate. In other words, if you add
-# a dependency on Substrate, you have to copy-paste this list in your own `Cargo.toml` (assuming
-# that you want the same list). This list is only relevant when running `cargo build` from within
-# the Substrate workspace.
-#
-# If you see an error mentioning "profile package spec ... did not match any packages", it
-# probably concerns this list.
-#
-# This list is ordered alphabetically.
-[profile.dev.package]
-blake2 = { opt-level = 3 }
-blake2b_simd = { opt-level = 3 }
-chacha20poly1305 = { opt-level = 3 }
-cranelift-codegen = { opt-level = 3 }
-cranelift-wasm = { opt-level = 3 }
-crc32fast = { opt-level = 3 }
-crossbeam-deque = { opt-level = 3 }
-crypto-mac = { opt-level = 3 }
-curve25519-dalek = { opt-level = 3 }
-ed25519-dalek = { opt-level = 3 }
-flate2 = { opt-level = 3 }
-futures-channel = { opt-level = 3 }
-hashbrown = { opt-level = 3 }
-hmac = { opt-level = 3 }
-httparse = { opt-level = 3 }
-integer-sqrt = { opt-level = 3 }
-keccak = { opt-level = 3 }
-librocksdb-sys = { opt-level = 3 }
-libsecp256k1 = { opt-level = 3 }
-libz-sys = { opt-level = 3 }
-mio = { opt-level = 3 }
-nalgebra = { opt-level = 3 }
-num-bigint = { opt-level = 3 }
-parking_lot = { opt-level = 3 }
-parking_lot_core = { opt-level = 3 }
-percent-encoding = { opt-level = 3 }
-primitive-types = { opt-level = 3 }
-ring = { opt-level = 3 }
-rustls = { opt-level = 3 }
-sha2 = { opt-level = 3 }
-sha3 = { opt-level = 3 }
-smallvec = { opt-level = 3 }
-snow = { opt-level = 3 }
-twox-hash = { opt-level = 3 }
-uint = { opt-level = 3 }
-x25519-dalek = { opt-level = 3 }
-yamux = { opt-level = 3 }
-zeroize = { opt-level = 3 }

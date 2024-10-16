@@ -63,7 +63,6 @@ xcm-builder.workspace = true
 xcm-executor.workspace = true
 cumulus-pallet-aura-ext.workspace = true
 cumulus-pallet-parachain-system.workspace = true
-cumulus-pallet-session-benchmarking.workspace = true
 cumulus-pallet-xcm.workspace = true
 cumulus-pallet-xcmp-queue.workspace = true
 cumulus-primitives-aura.workspace = true
@@ -80,7 +79,6 @@ std = [
 	"codec/std",
 	"cumulus-pallet-aura-ext/std",
 	"cumulus-pallet-parachain-system/std",
-	"cumulus-pallet-session-benchmarking/std",
 	"cumulus-pallet-xcm/std",
 	"cumulus-pallet-xcmp-queue/std",
 	"cumulus-primitives-aura/std",
@@ -131,7 +129,6 @@ std = [
 
 runtime-benchmarks = [
 	"cumulus-pallet-parachain-system/runtime-benchmarks",
-	"cumulus-pallet-session-benchmarking/runtime-benchmarks",
 	"cumulus-pallet-xcmp-queue/runtime-benchmarks",
 	"cumulus-primitives-core/runtime-benchmarks",
 	"cumulus-primitives-utility/runtime-benchmarks",

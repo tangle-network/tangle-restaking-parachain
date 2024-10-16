@@ -61,7 +61,7 @@ use orml_traits::{
 	NamedMultiReservableCurrency,
 };
 use orml_utilities::with_transaction_result;
-use parity_scale_codec::Codec;
+use codec::Codec;
 use sp_runtime::{
 	traits::{CheckedSub, MaybeSerializeDeserialize, StaticLookup, Zero},
 	DispatchError, DispatchResult,

@@ -14,7 +14,7 @@
 // along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 use frame_support::sp_runtime::MultiSignature;
-use parity_scale_codec::{Decode, Encode};
+use codec::{Decode, Encode};
 use sp_runtime::RuntimeDebug;
 use sp_std::{boxed::Box, vec::Vec};
 use xcm::{VersionedAssets, VersionedLocation};

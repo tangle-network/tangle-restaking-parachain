@@ -35,7 +35,7 @@ use core::marker::PhantomData;
 
 use frame_support::{ensure, traits::Get};
 use orml_traits::MultiCurrency;
-use parity_scale_codec::{alloc::collections::BTreeMap, Encode};
+use codec::{alloc::collections::BTreeMap, Encode};
 use sp_arithmetic::Percent;
 use sp_runtime::{
 	traits::{CheckedAdd, CheckedSub, Convert, UniqueSaturatedInto, Zero},

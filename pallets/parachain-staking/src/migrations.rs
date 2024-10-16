@@ -26,7 +26,7 @@ use frame_support::{
 	Twox64Concat,
 };
 #[cfg(feature = "try-runtime")]
-use parity_scale_codec::{Decode, Encode};
+use codec::{Decode, Encode};
 extern crate alloc;
 #[cfg(feature = "try-runtime")]
 use alloc::{format, string::ToString};

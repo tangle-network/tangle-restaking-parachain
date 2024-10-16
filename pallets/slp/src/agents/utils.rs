@@ -21,7 +21,7 @@ use crate::{
 	KSM, MANTA, MOVR, PHA,
 };
 use frame_support::ensure;
-use parity_scale_codec::Encode;
+use codec::Encode;
 use sp_core::Get;
 use sp_std::prelude::*;
 use tangle_primitives::CurrencyId;

@@ -30,7 +30,7 @@ use crate::{
 	*,
 };
 use frame_support::{assert_noop, assert_ok, PalletId};
-use parity_scale_codec::alloc::collections::BTreeMap;
+use codec::alloc::collections::BTreeMap;
 use polkadot_parachain_primitives::primitives::Sibling;
 use sp_runtime::traits::AccountIdConversion;
 use tangle_primitives::{currency::VMANTA, Balance};

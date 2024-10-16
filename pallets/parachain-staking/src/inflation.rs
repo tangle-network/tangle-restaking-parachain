@@ -16,7 +16,7 @@
 
 //! Helper methods for computing issuance based on inflation
 use frame_support::traits::Currency;
-use parity_scale_codec::{Decode, Encode, MaxEncodedLen};
+use codec::{Decode, Encode, MaxEncodedLen};
 use scale_info::TypeInfo;
 use serde::{Deserialize, Serialize};
 use sp_runtime::{PerThing, Perbill, RuntimeDebug};

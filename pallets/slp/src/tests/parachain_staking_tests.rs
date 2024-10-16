@@ -26,7 +26,7 @@ use crate::{
 	BNC, *,
 };
 use frame_support::{assert_noop, assert_ok, PalletId};
-use parity_scale_codec::alloc::collections::BTreeMap;
+use codec::alloc::collections::BTreeMap;
 use sp_runtime::traits::AccountIdConversion;
 use tangle_parachain_staking::RoundInfo;
 use tangle_primitives::VBNC;
