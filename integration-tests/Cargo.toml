@@ -8,7 +8,6 @@ tangle-asset-registry = { workspace = true }
 tangle-currencies = { workspace = true }
 tangle-polkadot-runtime = { workspace = true }
 tangle-primitives = { workspace = true }
-tangle-runtime-common = { workspace = true }
 tangle-xcm-interface = { workspace = true }
 cumulus-primitives-core = { workspace = true }
 env_logger = { workspace = true }
@@ -27,7 +26,7 @@ pallet-staking = { workspace = true }
 pallet-xcm = { workspace = true }
 parachain-info = { workspace = true }
 parachains-common = { workspace = true }
-parity-scale-codec = { workspace = true }
+codec =  { workspace = true }
 polkadot-core-primitives = { workspace = true }
 polkadot-parachain-primitives = { workspace = true, features = ["std"] }
 polkadot-runtime-common = { workspace = true, features = ["std"] }

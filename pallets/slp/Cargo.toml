@@ -9,7 +9,7 @@ edition = "2021"
 [dependencies]
 log = { workspace = true }
 hex-literal = { workspace = true }
-parity-scale-codec = { workspace = true, features = ["derive"] }
+codec =  { workspace = true, features = ["derive"] }
 scale-info = { workspace = true, features = ["derive"] }
 orml-traits = { workspace = true }
 orml-tokens = { workspace = true }
@@ -51,7 +51,7 @@ env_logger = { workspace = true }
 [features]
 default = ["std"]
 std = [
-    "parity-scale-codec/std",
+    "codec/std",
     "scale-info/std",
     "frame-system/std",
     "frame-support/std",
