@@ -61,9 +61,6 @@ orml-tokens = { workspace = true }
 orml-traits = { workspace = true }
 orml-xcm-support = { workspace = true }
 
-zenlink-protocol = { workspace = true }
-zenlink-protocol-runtime-api = { workspace = true }
-
 tangle-xcm-interface = { workspace = true }
 tangle-asset-registry = { workspace = true }
 
@@ -110,8 +107,6 @@ std = [
 	"orml-traits/std",
 	"orml-tokens/std",
 	"orml-xcm-support/std",
-	"zenlink-protocol/std",
-	"zenlink-protocol-runtime-api/std",
 	"tangle-xcm-interface/std",
 	"tangle-asset-registry/std",
 ]

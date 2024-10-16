@@ -1,5 +1,5 @@
 [workspace.package]
-version = "0.5.0"
+version = "0.1.0"
 authors = ["Webb Technologies Inc."]
 edition = "2021"
 license = "Unlicense"
@@ -43,16 +43,6 @@ tangle-lst-minting = { path = "pallets/lst-minting", default-features = false }
 tangle-slp = { path = "pallets/slp", default-features = false }
 tangle-xcm-interface = { path = "pallets/xcm-interface", default-features = false }
 pallet-traits = { path = "pallets/traits", default-features = false }
-
-# Zenlink
-merkle-distributor = { git = "https://github.com/bifrost-finance/Zenlink-DEX-Module", branch = "release-polkadot-v1.7.0", default-features = false }
-zenlink-protocol = { git = "https://github.com/bifrost-finance/Zenlink-DEX-Module", branch = "release-polkadot-v1.7.0", default-features = false }
-zenlink-protocol-rpc = { git = "https://github.com/bifrost-finance/Zenlink-DEX-Module", branch = "release-polkadot-v1.7.0" }
-zenlink-protocol-runtime-api = { git = "https://github.com/bifrost-finance/Zenlink-DEX-Module", branch = "release-polkadot-v1.7.0", default-features = false }
-zenlink-stable-amm = { git = "https://github.com/bifrost-finance/Zenlink-DEX-Module", branch = "release-polkadot-v1.7.0", default-features = false }
-zenlink-stable-amm-rpc = { git = "https://github.com/bifrost-finance/Zenlink-DEX-Module", branch = "release-polkadot-v1.7.0" }
-zenlink-stable-amm-runtime-api = { git = "https://github.com/bifrost-finance/Zenlink-DEX-Module", branch = "release-polkadot-v1.7.0", default-features = false }
-zenlink-swap-router = { git = "https://github.com/bifrost-finance/Zenlink-DEX-Module", branch = "release-polkadot-v1.7.0", default-features = false }
 
 # Orml
 orml-tokens = { git = "https://github.com/bifrost-finance/open-runtime-module-library", branch = "release-polkadot-v1.7.0", default-features = false }

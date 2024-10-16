@@ -96,11 +96,6 @@ tangle-rpc = { workspace = true }
 # RPC related dependencies
 jsonrpsee = { workspace = true, features = [ "macros", "server" ] }
 
-# zenlink rpc
-zenlink-protocol = { workspace = true }
-zenlink-protocol-runtime-api = { workspace = true }
-zenlink-stable-amm-runtime-api = { workspace = true }
-
 [features]
 default = [ "std" ]
 std = []

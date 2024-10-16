@@ -27,7 +27,41 @@ use sp_std::{
 	convert::{TryFrom, TryInto},
 	prelude::*,
 };
-use zenlink_protocol::{AssetId, LOCAL, NATIVE};
+
+/// Native currency
+pub const NATIVE: u8 = 0;
+/// Swap module asset
+pub const LIQUIDITY: u8 = 1;
+/// Other asset type on this chain
+pub const LOCAL: u8 = 2;
+/// Reserved for future
+pub const RESERVED: u8 = 3;
+
+/// AssetId use to locate assets in framed base chain.
+#[derive(
+	Encode,
+	Decode,
+	Eq,
+	PartialEq,
+	Copy,
+	Clone,
+	RuntimeDebug,
+	PartialOrd,
+	Ord,
+	TypeInfo,
+	MaxEncodedLen,
+	Serialize,
+	Deserialize,
+	Default,
+)]
+pub struct AssetId {
+	/// Parachain ID
+	pub chain_id: u32,
+	/// Pallet ID
+	pub asset_type: u8,
+	/// Index of asset within that pallet
+	pub asset_index: u64,
+}
 
 use crate::{
 	traits::{CurrencyIdExt, TokenInfo},

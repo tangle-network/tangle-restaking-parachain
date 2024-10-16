@@ -1,7 +1,6 @@
 [package]
 name = "tangle-polkadot-runtime"
-version = "0.8.0"
-
+version = "0.1.0"
 edition = "2021"
 build = "build.rs"
 
@@ -105,14 +104,6 @@ orml-xcm-support = { workspace = true }
 orml-xtokens = { workspace = true }
 orml-oracle = { workspace = true }
 
-# zenlink
-merkle-distributor = { workspace = true }
-zenlink-protocol = { workspace = true }
-zenlink-protocol-runtime-api = { workspace = true }
-zenlink-stable-amm = { workspace = true }
-zenlink-stable-amm-runtime-api = { workspace = true }
-zenlink-swap-router = { workspace = true }
-
 # tangle
 tangle-asset-registry = { workspace = true }
 tangle-currencies = { workspace = true }
@@ -208,13 +199,6 @@ std = [
 	"orml-xcm/std",
 	"orml-xtokens/std",
 
-	"zenlink-protocol/std",
-	"zenlink-protocol-runtime-api/std",
-	"zenlink-stable-amm/std",
-	"zenlink-stable-amm-runtime-api/std",
-	"zenlink-swap-router/std",
-	"merkle-distributor/std",
-
 	"tangle-primitives/std",
 	"tangle-asset-registry/std",
 	"tangle-currencies/std",
@@ -307,10 +291,6 @@ try-runtime = [
 	"orml-unknown-tokens/try-runtime",
 	"orml-xcm/try-runtime",
 	"orml-oracle/try-runtime",
-	"zenlink-protocol/try-runtime",
-	"merkle-distributor/try-runtime",
-	"zenlink-stable-amm/try-runtime",
-	"zenlink-swap-router/try-runtime",
 	"tangle-asset-registry/try-runtime",
 	"tangle-lst-minting/try-runtime",
 	"tangle-slp/try-runtime",

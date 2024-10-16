@@ -451,12 +451,7 @@ impl Contains<RuntimeCall> for SafeCallFilter {
 			)
 			| RuntimeCall::XcmInterface(tangle_xcm_interface::Call::transfer_statemine_assets {
 				..
-			})
-			| RuntimeCall::ZenlinkProtocol(
-				zenlink_protocol::Call::add_liquidity { .. }
-				| zenlink_protocol::Call::remove_liquidity { .. }
-				| zenlink_protocol::Call::transfer { .. },
-			) => true,
+			}) => true,
 			_ => false,
 		}
 	}

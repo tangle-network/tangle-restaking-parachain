@@ -3725,12 +3725,6 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "hex-literal"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7ebdb29d2ea9ed0083cd8cece49bbd968021bd99b0849edb4a9a7ee0fdf6a4e0"
-
-[[package]]
-name = "hex-literal"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
@@ -5189,25 +5183,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "808b50db46293432a45e63bc15ea51e0ab4c0a1647b8eb114e31a3e698dd6fbe"
 dependencies = [
  "hash-db",
-]
-
-[[package]]
-name = "merkle-distributor"
-version = "0.1.0"
-source = "git+https://github.com/bifrost-finance/Zenlink-DEX-Module?branch=release-polkadot-v1.7.0#c9528ec121fe1c19dd6a790d7ad24abad7fd95fa"
-dependencies = [
- "frame-support",
- "frame-system",
- "hex-literal 0.3.4",
- "orml-traits",
- "pallet-balances",
- "parity-scale-codec",
- "scale-info",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
 ]
 
 [[package]]
@@ -8291,7 +8266,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e0d5f9930210cab0233d81204415c9ef4a8889cdf3e60de1435250481a2773ca"
 dependencies = [
  "bitvec",
- "hex-literal 0.4.1",
+ "hex-literal",
  "log",
  "parity-scale-codec",
  "polkadot-core-primitives",
@@ -8475,7 +8450,7 @@ dependencies = [
  "frame-system",
  "frame-system-rpc-runtime-api",
  "futures 0.3.30",
- "hex-literal 0.4.1",
+ "hex-literal",
  "is_executable",
  "kvdb",
  "kvdb-rocksdb",
@@ -9350,7 +9325,7 @@ dependencies = [
  "frame-system-benchmarking",
  "frame-system-rpc-runtime-api",
  "frame-try-runtime",
- "hex-literal 0.4.1",
+ "hex-literal",
  "log",
  "pallet-asset-rate",
  "pallet-authority-discovery",
@@ -12836,7 +12811,7 @@ dependencies = [
  "env_logger",
  "frame-support",
  "frame-system",
- "hex-literal 0.4.1",
+ "hex-literal",
  "log",
  "orml-tokens",
  "orml-traits",
@@ -12884,7 +12859,7 @@ dependencies = [
  "frame-benchmarking",
  "frame-support",
  "frame-system",
- "hex-literal 0.4.1",
+ "hex-literal",
  "log",
  "orml-tokens",
  "orml-traits",
@@ -12937,7 +12912,7 @@ dependencies = [
 
 [[package]]
 name = "tangle-polkadot-runtime"
-version = "0.8.0"
+version = "0.1.0"
 dependencies = [
  "cumulus-pallet-aura-ext",
  "cumulus-pallet-dmp-queue",
@@ -12954,9 +12929,8 @@ dependencies = [
  "frame-system-benchmarking",
  "frame-system-rpc-runtime-api",
  "frame-try-runtime",
- "hex-literal 0.4.1",
+ "hex-literal",
  "log",
- "merkle-distributor",
  "orml-oracle",
  "orml-tokens",
  "orml-traits",
@@ -13036,11 +13010,6 @@ dependencies = [
  "tangle-runtime-common",
  "tangle-slp",
  "tangle-xcm-interface",
- "zenlink-protocol",
- "zenlink-protocol-runtime-api",
- "zenlink-stable-amm",
- "zenlink-stable-amm-runtime-api",
- "zenlink-swap-router",
 ]
 
 [[package]]
@@ -13058,7 +13027,6 @@ dependencies = [
  "sp-std",
  "staging-xcm",
  "staging-xcm-executor",
- "zenlink-protocol",
 ]
 
 [[package]]
@@ -13129,8 +13097,6 @@ dependencies = [
  "tangle-asset-registry",
  "tangle-primitives",
  "tangle-xcm-interface",
- "zenlink-protocol",
- "zenlink-protocol-runtime-api",
 ]
 
 [[package]]
@@ -13151,7 +13117,7 @@ dependencies = [
  "frame-benchmarking-cli",
  "frame-system-rpc-runtime-api",
  "futures 0.3.30",
- "hex-literal 0.4.1",
+ "hex-literal",
  "jsonrpsee",
  "log",
  "pallet-transaction-payment-rpc",
@@ -13208,9 +13174,6 @@ dependencies = [
  "tangle-rpc",
  "tangle-runtime-common",
  "try-runtime-cli",
- "zenlink-protocol",
- "zenlink-protocol-runtime-api",
- "zenlink-stable-amm-runtime-api",
 ]
 
 [[package]]
@@ -13223,7 +13186,7 @@ dependencies = [
  "frame-support",
  "frame-system",
  "hex",
- "hex-literal 0.4.1",
+ "hex-literal",
  "log",
  "orml-tokens",
  "orml-traits",
@@ -14536,7 +14499,7 @@ dependencies = [
  "frame-system-benchmarking",
  "frame-system-rpc-runtime-api",
  "frame-try-runtime",
- "hex-literal 0.4.1",
+ "hex-literal",
  "log",
  "pallet-asset-rate",
  "pallet-authority-discovery",
@@ -15101,86 +15064,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e17bb3549cc1321ae1296b9cdc2698e2b6cb1992adfa19a8c72e5b7a738f44cd"
 dependencies = [
  "time",
-]
-
-[[package]]
-name = "zenlink-protocol"
-version = "0.4.4"
-source = "git+https://github.com/bifrost-finance/Zenlink-DEX-Module?branch=release-polkadot-v1.7.0#c9528ec121fe1c19dd6a790d7ad24abad7fd95fa"
-dependencies = [
- "cumulus-primitives-core",
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "orml-tokens",
- "orml-traits",
- "pallet-balances",
- "parity-scale-codec",
- "scale-info",
- "serde",
- "sp-arithmetic",
- "sp-core",
- "sp-runtime",
- "sp-std",
- "staging-xcm",
-]
-
-[[package]]
-name = "zenlink-protocol-runtime-api"
-version = "0.4.4"
-source = "git+https://github.com/bifrost-finance/Zenlink-DEX-Module?branch=release-polkadot-v1.7.0#c9528ec121fe1c19dd6a790d7ad24abad7fd95fa"
-dependencies = [
- "parity-scale-codec",
- "sp-api",
- "sp-std",
- "zenlink-protocol",
-]
-
-[[package]]
-name = "zenlink-stable-amm"
-version = "0.1.0"
-source = "git+https://github.com/bifrost-finance/Zenlink-DEX-Module?branch=release-polkadot-v1.7.0#c9528ec121fe1c19dd6a790d7ad24abad7fd95fa"
-dependencies = [
- "frame-support",
- "frame-system",
- "orml-traits",
- "parity-scale-codec",
- "scale-info",
- "serde",
- "sp-arithmetic",
- "sp-core",
- "sp-runtime",
- "sp-std",
-]
-
-[[package]]
-name = "zenlink-stable-amm-runtime-api"
-version = "0.1.0"
-source = "git+https://github.com/bifrost-finance/Zenlink-DEX-Module?branch=release-polkadot-v1.7.0#c9528ec121fe1c19dd6a790d7ad24abad7fd95fa"
-dependencies = [
- "parity-scale-codec",
- "sp-api",
- "sp-std",
- "zenlink-stable-amm",
-]
-
-[[package]]
-name = "zenlink-swap-router"
-version = "0.1.0"
-source = "git+https://github.com/bifrost-finance/Zenlink-DEX-Module?branch=release-polkadot-v1.7.0#c9528ec121fe1c19dd6a790d7ad24abad7fd95fa"
-dependencies = [
- "frame-support",
- "frame-system",
- "orml-traits",
- "parity-scale-codec",
- "scale-info",
- "serde",
- "sp-arithmetic",
- "sp-core",
- "sp-runtime",
- "sp-std",
- "zenlink-protocol",
- "zenlink-stable-amm",
 ]
 
 [[package]]

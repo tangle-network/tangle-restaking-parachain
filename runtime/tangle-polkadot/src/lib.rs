@@ -102,13 +102,6 @@ pub use tangle_runtime_common::{
 };
 use tangle_slp::QueryId;
 
-// zenlink imports
-use zenlink_protocol::{
-	AssetBalance, AssetId as ZenlinkAssetId, LocalAssetHandler, MultiAssetsHandler, PairLpGenerate,
-	ZenlinkMultiAssets,
-};
-use zenlink_stable_amm::traits::{StablePoolLpCurrencyIdGenerate, ValidateCurrency};
-
 // xcm config
 pub mod xcm_config;
 use pallet_xcm::QueryStatus;
@@ -929,88 +922,6 @@ impl Contains<CurrencyId> for DerivativeAccountTokenFilter {
 }
 // tangle modules end
 
-// zenlink runtime start
-
-parameter_types! {
-	pub const StringLimit: u32 = 50;
-}
-
-impl zenlink_stable_amm::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type CurrencyId = CurrencyId;
-	type MultiCurrency = Currencies;
-	type PoolId = u32;
-	type TimeProvider = Timestamp;
-	type EnsurePoolAsset = StableAmmVerifyPoolAsset;
-	type LpGenerate = PoolLpGenerate;
-	type PoolCurrencySymbolLimit = StringLimit;
-	type PalletId = StableAmmPalletId;
-	type WeightInfo = ();
-}
-
-impl zenlink_swap_router::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type StablePoolId = u32;
-	type Balance = u128;
-	type StableCurrencyId = CurrencyId;
-	type NormalCurrencyId = ZenlinkAssetId;
-	type NormalAmm = ZenlinkProtocol;
-	type StableAMM = ZenlinkStableAMM;
-	type WeightInfo = zenlink_swap_router::weights::SubstrateWeight<Runtime>;
-}
-
-impl merkle_distributor::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type CurrencyId = CurrencyId;
-	type MultiCurrency = Currencies;
-	type Balance = Balance;
-	type MerkleDistributorId = u32;
-	type PalletId = MerkleDirtributorPalletId;
-	type StringLimit = StringLimit;
-	type WeightInfo = ();
-}
-
-pub struct StableAmmVerifyPoolAsset;
-
-impl ValidateCurrency<CurrencyId> for StableAmmVerifyPoolAsset {
-	fn validate_pooled_currency(_currencies: &[CurrencyId]) -> bool {
-		true
-	}
-
-	fn validate_pool_lp_currency(_currency_id: CurrencyId) -> bool {
-		if Currencies::total_issuance(_currency_id) > 0 {
-			return false;
-		}
-		true
-	}
-}
-
-pub struct PoolLpGenerate;
-
-impl StablePoolLpCurrencyIdGenerate<CurrencyId, PoolId> for PoolLpGenerate {
-	fn generate_by_pool_id(pool_id: PoolId) -> CurrencyId {
-		CurrencyId::StableLpToken(pool_id)
-	}
-}
-
-parameter_types! {
-	pub const ZenlinkPalletId: PalletId = PalletId(*b"/zenlink");
-	pub const GetExchangeFee: (u32, u32) = (3, 1000);   // 0.3%
-}
-
-impl zenlink_protocol::Config for Runtime {
-	type RuntimeEvent = RuntimeEvent;
-	type MultiAssetsHandler = MultiAssets;
-	type PalletId = ZenlinkPalletId;
-	type SelfParaId = SelfParaId;
-	type TargetChains = ();
-	type WeightInfo = ();
-	type AssetId = ZenlinkAssetId;
-	type LpGenerate = PairLpGenerate<Self>;
-}
-
-type MultiAssets = ZenlinkMultiAssets<ZenlinkProtocol, Balances, LocalAssetAdaptor<Currencies>>;
-
 pub struct OnRedeemSuccess;
 impl tangle_lst_minting::OnRedeemSuccess<AccountId, CurrencyId, Balance> for OnRedeemSuccess {
 	fn on_redeem_success(_token_id: CurrencyId, _to: AccountId, _token_amount: Balance) -> Weight {
@@ -1078,103 +989,6 @@ impl tangle_lst_minting::Config for Runtime {
 	type RedeemNftCollectionId = ConstU32<1>;
 	type NftHandler = Nfts;
 }
-
-parameter_types! {
-	pub const ClearingDuration: u32 = prod_or_fast!(DAYS, 10 * MINUTES);
-	pub const NameLengthLimit: u32 = 20;
-	pub TangleCommissionReceiver: AccountId = TreasuryPalletId::get().into_account_truncating();
-}
-
-// Below is the implementation of tokens manipulation functions other than native token.
-pub struct LocalAssetAdaptor<Local>(PhantomData<Local>);
-
-impl<Local, AccountId> LocalAssetHandler<AccountId> for LocalAssetAdaptor<Local>
-where
-	Local: MultiCurrency<AccountId, CurrencyId = CurrencyId>,
-{
-	fn local_balance_of(asset_id: ZenlinkAssetId, who: &AccountId) -> AssetBalance {
-		if let Ok(currency_id) = asset_id.try_into() {
-			return TryInto::<AssetBalance>::try_into(Local::free_balance(currency_id, who))
-				.unwrap_or_default();
-		}
-		AssetBalance::default()
-	}
-
-	fn local_total_supply(asset_id: ZenlinkAssetId) -> AssetBalance {
-		if let Ok(currency_id) = asset_id.try_into() {
-			return TryInto::<AssetBalance>::try_into(Local::total_issuance(currency_id))
-				.unwrap_or_default();
-		}
-		AssetBalance::default()
-	}
-
-	fn local_is_exists(asset_id: ZenlinkAssetId) -> bool {
-		let currency_id: Result<CurrencyId, ()> = asset_id.try_into();
-		currency_id.is_ok()
-	}
-
-	fn local_transfer(
-		asset_id: ZenlinkAssetId,
-		origin: &AccountId,
-		target: &AccountId,
-		amount: AssetBalance,
-	) -> DispatchResult {
-		if let Ok(currency_id) = asset_id.try_into() {
-			Local::transfer(
-				currency_id,
-				origin,
-				target,
-				amount
-					.try_into()
-					.map_err(|_| DispatchError::Other("convert amount in local transfer"))?,
-			)
-		} else {
-			Err(DispatchError::Other("unknown asset in local transfer"))
-		}
-	}
-
-	fn local_deposit(
-		asset_id: ZenlinkAssetId,
-		origin: &AccountId,
-		amount: AssetBalance,
-	) -> Result<AssetBalance, DispatchError> {
-		if let Ok(currency_id) = asset_id.try_into() {
-			Local::deposit(
-				currency_id,
-				origin,
-				amount
-					.try_into()
-					.map_err(|_| DispatchError::Other("convert amount in local deposit"))?,
-			)?;
-		} else {
-			return Err(DispatchError::Other("unknown asset in local transfer"));
-		}
-
-		Ok(amount)
-	}
-
-	fn local_withdraw(
-		asset_id: ZenlinkAssetId,
-		origin: &AccountId,
-		amount: AssetBalance,
-	) -> Result<AssetBalance, DispatchError> {
-		if let Ok(currency_id) = asset_id.try_into() {
-			Local::withdraw(
-				currency_id,
-				origin,
-				amount
-					.try_into()
-					.map_err(|_| DispatchError::Other("convert amount in local withdraw"))?,
-			)?;
-		} else {
-			return Err(DispatchError::Other("unknown asset in local transfer"));
-		}
-
-		Ok(amount)
-	}
-}
-
-// zenlink runtime end
 
 parameter_types! {
 	pub const AssetDeposit: u128 = 1_000_000;
@@ -1281,10 +1095,6 @@ construct_runtime! {
 		Currencies: tangle_currencies = 72,
 		UnknownTokens: orml_unknown_tokens = 73,
 		OrmlXcm: orml_xcm = 74,
-		ZenlinkProtocol: zenlink_protocol = 80,
-		MerkleDistributor: merkle_distributor = 81,
-		ZenlinkStableAMM: zenlink_stable_amm = 82,
-		ZenlinkSwapRouter: zenlink_swap_router = 83,
 
 		// tangle modules
 		AssetRegistry: tangle_asset_registry = 114,
