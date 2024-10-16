@@ -20,8 +20,8 @@ use crate::{
 	Pallet, TrailingZeroInput, Validators, ValidatorsByDelegatorUpdateEntry, ASTR, DOT, GLMR, H160,
 	KSM, MANTA, MOVR, PHA,
 };
-use frame_support::ensure;
 use codec::Encode;
+use frame_support::ensure;
 use sp_core::Get;
 use sp_std::prelude::*;
 use tangle_primitives::CurrencyId;

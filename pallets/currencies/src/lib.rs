@@ -38,6 +38,7 @@
 #![cfg_attr(not(feature = "std"), no_std)]
 #![allow(clippy::unused_unit)]
 
+use codec::Codec;
 use frame_support::{
 	pallet_prelude::*,
 	traits::{
@@ -61,7 +62,6 @@ use orml_traits::{
 	NamedMultiReservableCurrency,
 };
 use orml_utilities::with_transaction_result;
-use codec::Codec;
 use sp_runtime::{
 	traits::{CheckedSub, MaybeSerializeDeserialize, StaticLookup, Zero},
 	DispatchError, DispatchResult,
@@ -686,11 +686,20 @@ impl<T: Config> fungibles::Mutate<T::AccountId> for Pallet<T> {
 		match asset_id {
 			id if id == T::GetNativeCurrencyId::get() => {
 				<T::NativeCurrency as fungible::Mutate<_>>::burn_from(
-					who, amount, preservation, precision, fortitude,
+					who,
+					amount,
+					preservation,
+					precision,
+					fortitude,
 				)
 			},
 			_ => <T::MultiCurrency as fungibles::Mutate<_>>::burn_from(
-				asset_id, who, amount, preservation, precision, fortitude,
+				asset_id,
+				who,
+				amount,
+				preservation,
+				precision,
+				fortitude,
 			),
 		}
 	}
@@ -883,7 +892,6 @@ where
 			beneficiary,
 			value,
 			status,
-
 		)
 	}
 }
@@ -1264,7 +1272,13 @@ where
 		precision: Precision,
 		fortitude: Fortitude,
 	) -> Result<Self::Balance, DispatchError> {
-		<Currency as fungible::Mutate<_>>::burn_from(who, amount, preservation, precision, fortitude)
+		<Currency as fungible::Mutate<_>>::burn_from(
+			who,
+			amount,
+			preservation,
+			precision,
+			fortitude,
+		)
 	}
 
 	fn transfer(

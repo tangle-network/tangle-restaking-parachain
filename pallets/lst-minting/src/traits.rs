@@ -18,8 +18,8 @@
 
 // Ensure we're `no_std` when compiling for Wasm.
 
-use frame_support::pallet_prelude::Weight;
 use codec::{Decode, Encode};
+use frame_support::pallet_prelude::Weight;
 use sp_core::H160;
 use sp_runtime::RuntimeDebug;
 

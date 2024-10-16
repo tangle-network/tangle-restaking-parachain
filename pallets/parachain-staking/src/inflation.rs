@@ -15,8 +15,8 @@
 // along with Moonbeam.  If not, see <http://www.gnu.org/licenses/>.
 
 //! Helper methods for computing issuance based on inflation
-use frame_support::traits::Currency;
 use codec::{Decode, Encode, MaxEncodedLen};
+use frame_support::traits::Currency;
 use scale_info::TypeInfo;
 use serde::{Deserialize, Serialize};
 use sp_runtime::{PerThing, Perbill, RuntimeDebug};

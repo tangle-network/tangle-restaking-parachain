@@ -13499,52 +13499,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tangle-integration-tests"
-version = "0.8.0"
-dependencies = [
- "cumulus-primitives-core",
- "env_logger",
- "frame-support",
- "frame-system",
- "hex-literal",
- "log",
- "orml-tokens",
- "orml-traits",
- "orml-xtokens",
- "pallet-balances",
- "pallet-conviction-voting",
- "pallet-message-queue",
- "pallet-referenda",
- "pallet-staking",
- "pallet-xcm",
- "parachains-common",
- "parity-scale-codec",
- "polkadot-core-primitives",
- "polkadot-parachain-primitives",
- "polkadot-runtime-common",
- "polkadot-runtime-parachains",
- "scale-info",
- "serde",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-staking",
- "sp-std",
- "staging-parachain-info",
- "staging-xcm",
- "staging-xcm-builder",
- "staging-xcm-executor",
- "tangle-asset-registry",
- "tangle-currencies",
- "tangle-polkadot-runtime",
- "tangle-primitives",
- "tangle-slp",
- "tangle-xcm-interface",
- "xcm-emulator",
- "xcm-simulator",
-]
-
-[[package]]
 name = "tangle-lst-minting"
 version = "0.8.0"
 dependencies = [
@@ -13773,6 +13727,64 @@ dependencies = [
  "tangle-parachain-staking",
  "tangle-primitives",
  "tangle-xcm-interface",
+]
+
+[[package]]
+name = "tangle-testnet-runtime"
+version = "0.1.0"
+dependencies = [
+ "cumulus-pallet-aura-ext",
+ "cumulus-pallet-parachain-system",
+ "cumulus-pallet-xcm",
+ "cumulus-pallet-xcmp-queue",
+ "cumulus-primitives-aura",
+ "cumulus-primitives-core",
+ "cumulus-primitives-storage-weight-reclaim",
+ "cumulus-primitives-utility",
+ "docify",
+ "frame-benchmarking",
+ "frame-executive",
+ "frame-metadata-hash-extension",
+ "frame-support",
+ "frame-system",
+ "frame-system-benchmarking",
+ "frame-system-rpc-runtime-api",
+ "frame-try-runtime",
+ "hex-literal",
+ "log",
+ "pallet-aura",
+ "pallet-authorship",
+ "pallet-balances",
+ "pallet-collator-selection",
+ "pallet-message-queue",
+ "pallet-session",
+ "pallet-sudo",
+ "pallet-timestamp",
+ "pallet-transaction-payment",
+ "pallet-transaction-payment-rpc-runtime-api",
+ "pallet-xcm",
+ "parachains-common",
+ "parity-scale-codec",
+ "polkadot-parachain-primitives",
+ "polkadot-runtime-common",
+ "scale-info",
+ "smallvec",
+ "sp-api",
+ "sp-block-builder",
+ "sp-consensus-aura",
+ "sp-core",
+ "sp-genesis-builder",
+ "sp-inherents",
+ "sp-offchain",
+ "sp-runtime",
+ "sp-session",
+ "sp-transaction-pool",
+ "sp-version",
+ "staging-parachain-info",
+ "staging-xcm",
+ "staging-xcm-builder",
+ "staging-xcm-executor",
+ "substrate-wasm-builder",
 ]
 
 [[package]]
@@ -15561,41 +15573,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "xcm-emulator"
-version = "0.15.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dfbfd92785981c9e0c080b106b91a8186d0ae9a0f895a54f60ec024511d82f41"
-dependencies = [
- "cumulus-pallet-parachain-system",
- "cumulus-pallet-xcmp-queue",
- "cumulus-primitives-core",
- "cumulus-primitives-parachain-inherent",
- "cumulus-test-relay-sproof-builder",
- "frame-support",
- "frame-system",
- "impl-trait-for-tuples",
- "lazy_static",
- "log",
- "pallet-balances",
- "pallet-message-queue",
- "parachains-common",
- "parity-scale-codec",
- "paste",
- "polkadot-parachain-primitives",
- "polkadot-primitives",
- "polkadot-runtime-parachains",
- "sp-arithmetic",
- "sp-core",
- "sp-crypto-hashing",
- "sp-io",
- "sp-runtime",
- "sp-std",
- "sp-tracing",
- "staging-xcm",
- "staging-xcm-executor",
-]
-
-[[package]]
 name = "xcm-procedural"
 version = "10.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -15619,29 +15596,6 @@ dependencies = [
  "sp-api",
  "sp-weights",
  "staging-xcm",
- "staging-xcm-executor",
-]
-
-[[package]]
-name = "xcm-simulator"
-version = "16.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf3cdbb92c84bf606bca54a38aec6ec4e43164698e1d7431b286c58bfa0c1ee6"
-dependencies = [
- "frame-support",
- "frame-system",
- "parity-scale-codec",
- "paste",
- "polkadot-core-primitives",
- "polkadot-parachain-primitives",
- "polkadot-primitives",
- "polkadot-runtime-parachains",
- "scale-info",
- "sp-io",
- "sp-runtime",
- "sp-std",
- "staging-xcm",
- "staging-xcm-builder",
  "staging-xcm-executor",
 ]
 

@@ -51,7 +51,6 @@
 
 mod delegation_requests;
 pub mod inflation;
-pub mod migrations;
 pub mod traits;
 pub mod types;
 pub mod weights;

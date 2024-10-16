@@ -19,7 +19,7 @@ members = [
 	"pallets/slp",
 	"pallets/parachain-staking",
 	"runtime/polkadot",
-	"integration-tests"
+	"runtime/testnet",
 ]
 resolver = "2"
 
