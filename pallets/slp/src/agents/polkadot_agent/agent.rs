@@ -28,10 +28,10 @@ use crate::{
 	DelegatorsMultilocation2Index, LedgerUpdateEntry, MinimumsAndMaximums, Pallet, TimeUnit,
 	ValidatorsByDelegator, ValidatorsByDelegatorXcmUpdateQueue,
 };
+use codec::Encode;
 use core::marker::PhantomData;
 use frame_support::{ensure, traits::Get};
 use frame_system::pallet_prelude::BlockNumberFor;
-use parity_scale_codec::Encode;
 use sp_runtime::{
 	traits::{CheckedAdd, CheckedSub, Convert, StaticLookup, UniqueSaturatedInto, Zero},
 	DispatchResult,

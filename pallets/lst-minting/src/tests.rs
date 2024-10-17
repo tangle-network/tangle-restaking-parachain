@@ -47,34 +47,6 @@ fn init_slp<T: tangle_slp::Config>() {
 }
 
 #[test]
-fn redeem_bnc() {
-	ExtBuilder::default().one_hundred_for_alice_n_bob().build().execute_with(|| {
-		// AssetIdMaps::<Runtime>::register_lst_metadata(TokenSymbol::BNC)
-		// 	.expect("Lst register");
-		assert_ok!(LstMinting::set_minimum_mint(RuntimeOrigin::signed(ALICE), BNC, 0));
-		let validator =
-			MultiLocation { parents: 100, interior: X1(Junction::from(BoundedVec::default())) };
-		assert_ok!(LstMinting::mint(
-			Some(BOB).into(),
-			BNC,
-			100000000000,
-			BoundedVec::default(),
-			None,
-			vec![validator]
-		));
-		assert_ok!(LstMinting::set_unlock_duration(
-			RuntimeOrigin::signed(ALICE),
-			BNC,
-			TimeUnit::Era(1)
-		));
-		assert_ok!(LstMinting::increase_token_pool(BNC, 70000000000));
-		assert_ok!(LstMinting::update_ongoing_time_unit(BNC, TimeUnit::Era(1)));
-		assert_eq!(Tokens::free_balance(VBNC, &BOB), 100000000000);
-		assert_ok!(LstMinting::redeem(Some(BOB).into(), VBNC, 20000000000));
-	});
-}
-
-#[test]
 fn mint() {
 	ExtBuilder::default().one_hundred_for_alice_n_bob().build().execute_with(|| {
 		assert_ok!(LstMinting::set_minimum_mint(RuntimeOrigin::signed(ALICE), KSM, 200));

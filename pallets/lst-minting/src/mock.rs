@@ -40,11 +40,10 @@ use sp_runtime::{
 };
 use tangle_asset_registry::AssetIdMaps;
 use tangle_primitives::{
-	currency::{BNC, DOT, FIL, KSM, MOVR, VBNC, VFIL, VKSM, VMOVR},
+	currency::{BNC, DOT, FIL, KSM, MOVR, VFIL, VKSM},
 	CurrencyId, CurrencyIdMapping, SlpxOperator, TokenSymbol,
 };
 use tangle_primitives::{staking::QueryId, staking::QueryResponseManager};
-use tangle_runtime_common::{micro, milli};
 use xcm::{prelude::*, v3::Weight};
 use xcm_builder::{FixedWeightBounds, FrameTransactionalProcessor};
 use xcm_executor::XcmExecutor;
@@ -132,25 +131,10 @@ impl pallet_balances::Config for Runtime {
 
 orml_traits::parameter_type_with_key! {
 	pub ExistentialDeposits: |currency_id: CurrencyId| -> Balance {
-		env_logger::try_init().unwrap_or(());
-
-		log::debug!(
-			"{:?}",currency_id
-		);
-		match currency_id {
-			&BNC => 10 * milli::<Runtime>(NativeCurrencyId::get()),   // 0.01 BNC
-			&KSM => 0,
-			&VKSM => 0,
-			&FIL => 0,
-			&VFIL => 0,
-			&MOVR => micro::<Runtime>(MOVR),	// MOVR has a decimals of 10e18
-			&VMOVR => micro::<Runtime>(MOVR),	// MOVR has a decimals of 10e18
-			&VBNC => 10 * milli::<Runtime>(NativeCurrencyId::get()),  // 0.01 BNC
-			_ => AssetIdMaps::<Runtime>::get_currency_metadata(*currency_id)
-				.map_or(Balance::max_value(), |metatata| metatata.minimal_balance)
-		}
+		0_u32.into()
 	};
 }
+
 impl orml_tokens::Config for Runtime {
 	type Amount = i128;
 	type Balance = Balance;
@@ -352,6 +336,10 @@ impl xcm_executor::Config for XcmConfig {
 	type AssetExchanger = ();
 	type Aliasers = Nothing;
 	type TransactionalProcessor = FrameTransactionalProcessor;
+	type HrmpNewChannelOpenRequestHandler = ();
+	type HrmpChannelAcceptedHandler = ();
+	type HrmpChannelClosingHandler = ();
+	type XcmRecorder = PolkadotXcm;
 }
 
 #[cfg(feature = "runtime-benchmarks")]

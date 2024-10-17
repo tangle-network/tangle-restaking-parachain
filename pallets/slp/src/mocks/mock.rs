@@ -33,7 +33,7 @@ use frame_support::{
 use frame_system::{EnsureRoot, EnsureSignedBy};
 use hex_literal::hex;
 use orml_traits::{location::RelativeReserveProvider, parameter_type_with_key};
-use parity_scale_codec::{Decode, Encode};
+use codec::{Decode, Encode};
 use sp_core::{bounded::BoundedVec, hashing::blake2_256, ConstU32};
 pub use sp_runtime::Perbill;
 use sp_runtime::{

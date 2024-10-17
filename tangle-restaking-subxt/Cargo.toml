@@ -9,6 +9,6 @@ repository = { workspace = true }
 
 [dependencies]
 scale-info = { workspace = true, default-features = false, features = ["derive"] }
-parity-scale-codec = { workspace = true, default-features = false, features = ["derive", "max-encoded-len"] }
+codec =  { workspace = true, default-features = false, features = ["derive", "max-encoded-len"] }
 subxt = { version = "0.34.0" }
 

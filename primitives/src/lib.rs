@@ -20,7 +20,7 @@
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
-use parity_scale_codec::MaxEncodedLen;
+use codec::MaxEncodedLen;
 use scale_info::TypeInfo;
 use sp_core::{Decode, Encode, RuntimeDebug, H160};
 use sp_runtime::{

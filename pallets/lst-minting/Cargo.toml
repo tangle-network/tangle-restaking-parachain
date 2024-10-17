@@ -7,7 +7,7 @@ edition = "2021"
 targets = ["x86_64-unknown-linux-gnu"]
 
 [dependencies]
-parity-scale-codec = { workspace = true, features = ["derive"] }
+codec =  { workspace = true, features = ["derive"] }
 scale-info = { workspace = true, features = ["derive"] }
 log = { workspace = true }
 frame-support = { workspace = true }
@@ -41,14 +41,13 @@ xcm = { workspace = true }
 pallet-assets = { workspace = true }
 pallet-uniques = { workspace = true }
 tangle-asset-registry = { workspace = true }
-tangle-runtime-common = { workspace = true }
 env_logger = { workspace = true }
 tangle-slp = { workspace = true }
 
 [features]
 default = ["std"]
 std = [
-	"parity-scale-codec/std",
+	"codec/std",
 	"scale-info/std",
 	"frame-support/std",
 	"frame-system/std",

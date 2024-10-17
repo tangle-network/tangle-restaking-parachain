@@ -4,7 +4,7 @@ version = "0.8.0"
 edition = "2021"
 
 [dependencies]
-parity-scale-codec = { workspace = true, features = ["derive"] }
+codec =  { workspace = true, features = ["derive"] }
 scale-info = { workspace = true, features = ["derive"] }
 frame-benchmarking = { workspace = true, optional = true }
 frame-support = { workspace = true }
@@ -30,7 +30,7 @@ xcm-executor = { workspace = true }
 [features]
 default = ["std"]
 std = [
-	"parity-scale-codec/std",
+	"codec/std",
 	"frame-benchmarking/std",
 	"frame-support/std",
 	"frame-system/std",
