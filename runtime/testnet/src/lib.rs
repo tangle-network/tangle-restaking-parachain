@@ -295,6 +295,9 @@ mod runtime {
 	pub type CumulusXcm = cumulus_pallet_xcm;
 	#[runtime::pallet_index(33)]
 	pub type MessageQueue = pallet_message_queue;
+
+	#[runtime::pallet_index(34)]
+	pub type Ismp = pallet_ismp;
 }
 
 #[docify::export(register_validate_block)]
