@@ -321,8 +321,11 @@ impl pallet_ismp_runtime_api::IsmpRuntimeApi<Block, <Block as BlockT>::Hash> for
 
 	/// Generate a proof for the provided leaf indices
 	fn generate_proof(
-		keys: pallet_ismp::mmr::ProofKeys
-	) -> Result<(Vec<pallet_ismp::mmr::Leaf>, Proof<<Block as BlockT>::Hash>), sp_mmr_primitives::Error> {
+		keys: pallet_ismp::mmr::ProofKeys,
+	) -> Result<
+		(Vec<pallet_ismp::mmr::Leaf>, Proof<<Block as BlockT>::Hash>),
+		sp_mmr_primitives::Error,
+	> {
 		Ismp::generate_proof(keys)
 	}
 

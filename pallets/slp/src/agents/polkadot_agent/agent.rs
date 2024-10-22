@@ -80,6 +80,42 @@ impl<T: Config>
 		Ok(delegator_multilocation)
 	}
 
+	fn read_delegator_ledger(
+		&self,
+		who: &MultiLocation,
+		currency_id: CurrencyId,
+	) -> Result<Ledger<BalanceOf<T>>, Error<T>> {
+		let key = Self::region_storage_key(region_id)?;
+
+		let polkadot_height =
+			T::StateMachineHeightProvider::latest_state_machine_height(StateMachineId {
+				state_id: T::RelayChain::get(),
+				consensus_state_id: PARACHAIN_CONSENSUS_ID,
+			})
+			.ok_or(Error::<T>::LatestHeightInaccessible)?;
+
+		let get = DispatchGet {
+			dest: T::RelayChain::get(),
+			from: PALLET_ID.to_bytes(),
+			keys: vec![key],
+			height: polkadot_height,
+			timeout: T::Timeout::get(),
+		};
+
+		let dispatcher = T::IsmpDispatcher::default();
+
+		let commitment = dispatcher
+			.dispatch_request(
+				DispatchRequest::Get(get),
+				FeeMetadata { payer: who.clone(), fee: Zero::zero() },
+			)
+			.map_err(|_| Error::<T>::IsmpDispatchError)?;
+
+		log::info!("polkadot requested commitment: {:?}", commitment);
+
+		Ok(commitment)
+	}
+
 	/// First time bonding some amount to a delegator.
 	fn bond(
 		&self,
