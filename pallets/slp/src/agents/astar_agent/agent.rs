@@ -26,10 +26,10 @@ use crate::{
 	AccountIdOf, BalanceOf, Config, DelegatorLedgerXcmUpdateQueue, DelegatorLedgers,
 	DelegatorsMultilocation2Index, LedgerUpdateEntry, MinimumsAndMaximums, Pallet, TimeUnit,
 };
+use codec::Encode;
 use core::marker::PhantomData;
 use frame_support::{ensure, traits::Get};
 use frame_system::pallet_prelude::BlockNumberFor;
-use parity_scale_codec::Encode;
 use sp_runtime::{
 	traits::{CheckedAdd, CheckedSub, Convert, UniqueSaturatedInto, Zero},
 	DispatchResult,

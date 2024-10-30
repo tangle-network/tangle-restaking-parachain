@@ -13,7 +13,7 @@ serde = { workspace = true, features = ["derive"] }
 frame-benchmarking = { workspace = true, optional = true }
 frame-support = { workspace = true }
 frame-system = { workspace = true }
-parity-scale-codec = { workspace = true, features = ["derive","max-encoded-len"] }
+codec =  { workspace = true, features = ["derive","max-encoded-len"] }
 scale-info = { workspace = true, features = ["derive", "decode"] }
 sp-runtime = { workspace = true }
 sp-std = { workspace = true }
@@ -35,7 +35,7 @@ std = [
 	"frame-benchmarking/std",
 	"frame-support/std",
 	"frame-system/std",
-	"parity-scale-codec/std",
+	"codec/std",
 	"scale-info/std",
 	"sp-runtime/std",
 	"sp-std/std",

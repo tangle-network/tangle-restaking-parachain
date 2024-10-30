@@ -16,8 +16,8 @@
 
 //! Scheduled requests functionality for delegators
 
+use codec::{Decode, Encode};
 use frame_support::{dispatch::DispatchResultWithPostInfo, ensure, traits::Get};
-use parity_scale_codec::{Decode, Encode};
 use scale_info::TypeInfo;
 use sp_runtime::{traits::Saturating, RuntimeDebug};
 use sp_std::{vec, vec::Vec};

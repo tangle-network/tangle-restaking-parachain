@@ -51,7 +51,6 @@
 
 mod delegation_requests;
 pub mod inflation;
-pub mod migrations;
 pub mod traits;
 pub mod types;
 pub mod weights;
@@ -87,7 +86,7 @@ pub mod pallet {
 	};
 	use frame_system::pallet_prelude::*;
 	use pallet_session::ShouldEndSession;
-	// use parity_scale_codec::Decode;
+	// use codec::Decode;
 	use sp_runtime::{
 		traits::{AccountIdConversion, Saturating, Zero},
 		Perbill, Percent, Permill,

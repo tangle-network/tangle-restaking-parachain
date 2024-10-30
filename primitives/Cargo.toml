@@ -6,7 +6,7 @@ edition = "2021"
 
 [dependencies]
 bstringify = { workspace = true }
-parity-scale-codec = { workspace = true }
+codec =  { workspace = true }
 scale-info = { workspace = true, features = ["derive"] }
 serde = { workspace = true, features = ["derive"] }
 
@@ -16,14 +16,12 @@ sp-runtime = { workspace = true }
 sp-std = { workspace = true }
 xcm = { workspace = true }
 xcm-executor = { workspace = true }
-
-zenlink-protocol = { workspace = true }
 orml-oracle = { workspace = true }
 
 [features]
 default = ["std"]
 std = [
-	"parity-scale-codec/std",
+	"codec/std",
 	"serde/std",
 	"scale-info/std",
 
@@ -33,8 +31,6 @@ std = [
 	"sp-std/std",
 
 	"xcm/std",
-
-	"zenlink-protocol/std",
 	"orml-oracle/std",
 	"xcm-executor/std"
 ]

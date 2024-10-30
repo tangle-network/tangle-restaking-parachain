@@ -27,10 +27,10 @@ use crate::{
 	DelegatorsMultilocation2Index, Hash, LedgerUpdateEntry, MinimumsAndMaximums, Pallet, TimeUnit,
 	ValidatorsByDelegatorUpdateEntry,
 };
+use codec::Encode;
 use core::marker::PhantomData;
 use frame_support::{ensure, traits::Get};
 use frame_system::pallet_prelude::BlockNumberFor;
-use parity_scale_codec::Encode;
 use sp_core::U256;
 use sp_runtime::{
 	traits::{CheckedAdd, CheckedSub, Convert, UniqueSaturatedFrom, UniqueSaturatedInto, Zero},

@@ -26,7 +26,7 @@ pub use parachain_staking_primitives::*;
 pub use phala_primitives::*;
 pub use polkadot_primitives::*;
 
-use parity_scale_codec::{Decode, Encode};
+use codec::{Decode, Encode};
 use scale_info::TypeInfo;
 use sp_runtime::RuntimeDebug;
 use tangle_primitives::TimeUnit;

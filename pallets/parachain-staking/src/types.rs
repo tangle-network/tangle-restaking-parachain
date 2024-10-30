@@ -16,11 +16,11 @@
 
 //! Types for tangle-parachain-staking
 
+use codec::{Decode, Encode};
 use frame_support::{
 	pallet_prelude::*,
 	traits::{tokens::WithdrawReasons, LockableCurrency},
 };
-use parity_scale_codec::{Decode, Encode};
 use scale_info::prelude::vec;
 use sp_runtime::{
 	traits::{AtLeast32BitUnsigned, Saturating, Zero},
