@@ -151,13 +151,6 @@ pub mod pallet {
 
 		type ParachainStaking: ParachainStakingInterface<AccountIdOf<Self>, BalanceOf<Self>>;
 
-		/// The ISMP dispatcher.
-		type IsmpDispatcher: IsmpDispatcher<Account = Self::AccountId, Balance = BalanceOf<Self>>
-			+ Default;
-
-		/// Used for getting the height of the Coretime chain.
-		type StateMachineHeightProvider: StateMachineHeightProvider;
-
 		type ChannelCommission: SlpHostingFeeProvider<
 			CurrencyId,
 			BalanceOf<Self>,
@@ -854,36 +847,6 @@ pub mod pallet {
 				query_id,
 				query_id_hash,
 			});
-			Ok(())
-		}
-
-		#[pallet::call_index(50)]
-		#[pallet::weight(<T as Config>::WeightInfo::rebond())]
-		pub fn read_delegator_ledger(
-			origin: OriginFor<T>,
-			currency_id: CurrencyId,
-			who: Box<MultiLocation>,
-		) -> DispatchResult {
-			Self::ensure_authorized(origin, currency_id)?;
-
-			let staking_agent = Self::get_currency_staking_agent(currency_id)?;
-			let ledger = staking_agent.read_delegator_ledger(&who, currency_id)?;
-
-			Ok(())
-		}
-
-		#[pallet::call_index(51)]
-		#[pallet::weight(<T as Config>::WeightInfo::rebond())]
-		pub fn read_delegator_ledger_commitment(
-			origin: OriginFor<T>,
-			currency_id: CurrencyId,
-			who: Box<MultiLocation>,
-		) -> DispatchResult {
-			Self::ensure_authorized(origin, currency_id)?;
-
-			let staking_agent = Self::get_currency_staking_agent(currency_id)?;
-			let ledger = staking_agent.read_delegator_ledger_commitment(&who, currency_id)?;
-
 			Ok(())
 		}
 
