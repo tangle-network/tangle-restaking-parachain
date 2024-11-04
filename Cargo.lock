@@ -7449,20 +7449,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "pallet-uniques"
-version = "37.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "440766f82b3b57cebfa3c8359b136f6cd4371137788249b62a93d6bce46b02ea"
-dependencies = [
- "frame-support",
- "frame-system",
- "log",
- "parity-scale-codec",
- "scale-info",
- "sp-runtime",
-]
-
-[[package]]
 name = "pallet-utility"
 version = "37.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -13534,42 +13520,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tangle-lst-minting"
-version = "0.8.0"
-dependencies = [
- "cumulus-primitives-core",
- "env_logger",
- "frame-benchmarking",
- "frame-support",
- "frame-system",
- "hex-literal",
- "log",
- "orml-tokens",
- "orml-traits",
- "orml-xtokens",
- "pallet-assets",
- "pallet-balances",
- "pallet-collective",
- "pallet-uniques",
- "pallet-xcm",
- "parachains-common",
- "parity-scale-codec",
- "scale-info",
- "sp-arithmetic",
- "sp-core",
- "sp-io",
- "sp-runtime",
- "sp-std",
- "staging-xcm",
- "staging-xcm-builder",
- "staging-xcm-executor",
- "tangle-asset-registry",
- "tangle-currencies",
- "tangle-primitives",
- "tangle-slp",
-]
-
-[[package]]
 name = "tangle-parachain"
 version = "0.1.0"
 dependencies = [
@@ -13681,7 +13631,6 @@ dependencies = [
  "pallet-message-queue",
  "pallet-session",
  "pallet-sudo",
- "pallet-tangle-lst",
  "pallet-timestamp",
  "pallet-transaction-payment",
  "pallet-transaction-payment-rpc-runtime-api",
