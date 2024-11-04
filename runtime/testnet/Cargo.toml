@@ -73,6 +73,12 @@ pallet-collator-selection.workspace = true
 parachains-common.workspace = true
 parachain-info.workspace = true
 
+# Hyperbridge (ISMP)
+# pallet-ismp = { workspace = true, features = ["unsigned"] }
+# pallet-ismp-runtime-api = { workspace = true }
+# ismp-grandpa = { workspace = true }
+# ismp = { workspace = true }
+
 [features]
 default = ["std"]
 std = [
@@ -125,6 +131,10 @@ std = [
 	"xcm-builder/std",
 	"xcm-executor/std",
 	"xcm/std",
+	# "pallet-ismp/std",
+	# "pallet-ismp-runtime-api/std",
+	# "ismp-grandpa/std",
+	# "ismp/std",
 ]
 
 runtime-benchmarks = [

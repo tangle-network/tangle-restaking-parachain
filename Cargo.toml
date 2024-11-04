@@ -235,6 +235,13 @@ color-print = { version = "0.3.4" }
 docify = { version = "0.2.8" }
 prometheus-endpoint = { version = "0.17.0", package = "substrate-prometheus-endpoint" }
 
+# Hyperbridge (ISMP)
+# ismp = { version = "0.2.0", default-features = false }
+# pallet-ismp = { version = "1.15.0", default-features = false }
+# ismp-grandpa = { version = "1.15.0", default-features = false }
+# pallet-ismp-runtime-api = { version = "1.15.0", default-features = false }
+# pallet-ismp-rpc = { version = "1.15.0" }
+
 [profile.dev]
 split-debuginfo = "unpacked"
 
