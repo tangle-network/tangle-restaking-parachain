@@ -713,7 +713,7 @@ pub mod pallet {
 			let who = ensure_signed(origin)?;
 			let member_account = T::Lookup::lookup(member_account)?;
 
-			let mut bonded_pool = BondedPool::<T>::get(pool_id).ok_or(Error::<T>::PoolNotFound)?;
+			let bonded_pool = BondedPool::<T>::get(pool_id).ok_or(Error::<T>::PoolNotFound)?;
 
 			let total_points = T::Fungibles::balance(pool_id.into(), &member_account);
 
@@ -858,7 +858,7 @@ pub mod pallet {
 			let bonded_pool = BondedPool::<T>::get(member.pool_id)
 				.defensive_ok_or::<Error<T>>(DefensiveError::PoolNotFound.into())?;
 
-			let current_era = CurrentEraStorage::<T>::get(&bonded_pool.chain_id);
+			let current_era = CurrentEraStorage::<T>::get(bonded_pool.chain_id);
 
 			let mut sub_pools =
 				SubPoolsStorage::<T>::get(member.pool_id).ok_or(Error::<T>::SubPoolsNotFound)?;
