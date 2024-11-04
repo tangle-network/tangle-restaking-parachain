@@ -47,7 +47,7 @@ use sp_std::{boxed::Box, vec, vec::Vec};
 use tangle_asset_registry::AssetMetadata;
 use tangle_parachain_staking::ParachainStakingInterface;
 use tangle_primitives::{
-	currency::{BNC, KSM, MANTA, MOVR, PHA},
+	currency::{KSM, MANTA, MOVR, PHA, TNT},
 	staking::{QueryResponseManager, StakingAgent},
 	traits::XcmDestWeightAndFeeHandler,
 	CurrencyId, CurrencyIdExt, CurrencyIdMapping, DerivativeAccountHandler, DerivativeIndex,
@@ -1282,7 +1282,7 @@ pub mod pallet {
 			let (source_location, reserved_fee) =
 				FeeSources::<T>::get(currency_id).ok_or(Error::<T>::FeeSourceNotExist)?;
 
-			// If currency is BNC, transfer directly.
+			// If currency is TNT, transfer directly.
 			// Otherwise, call supplement_fee_reserve of StakingFeeManager trait.
 			if currency_id.is_native() {
 				let source_account = Self::native_multilocation_to_account(&source_location)?;
@@ -2260,7 +2260,7 @@ pub mod pallet {
 		) -> Result<StakingAgentBoxType<T>, Error<T>> {
 			match currency_id {
 				KSM | DOT => Ok(Box::new(PolkadotAgent::<T>::new())),
-				BNC | MOVR | GLMR | MANTA => Ok(Box::new(ParachainStakingAgent::<T>::new())),
+				TNT | MOVR | GLMR | MANTA => Ok(Box::new(ParachainStakingAgent::<T>::new())),
 				FIL => Ok(Box::new(FilecoinAgent::<T>::new())),
 				PHA => Ok(Box::new(PhalaAgent::<T>::new())),
 				ASTR => Ok(Box::new(AstarAgent::<T>::new())),

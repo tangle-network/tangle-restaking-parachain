@@ -1,4 +1,5 @@
 use super::*;
+use tangle_primitives::CurrencyId;
 
 /// Pool permissions and state
 #[derive(Encode, Decode, MaxEncodedLen, TypeInfo, DebugNoBound, Clone)]
@@ -10,7 +11,7 @@ pub struct BondedPoolInner<T: Config> {
 	/// See [`PoolRoles`].
 	pub roles: PoolRoles<T::AccountId>,
 	/// ChainId
-	pub chain_id: u32,
+	pub chain_id: CurrencyId,
 	/// The current state of the pool.
 	pub state: PoolState,
 	/// pool metadata
@@ -59,7 +60,7 @@ impl<T: Config> BondedPool<T> {
 		id: PoolId,
 		roles: PoolRoles<T::AccountId>,
 		name: BoundedVec<u8, T::MaxNameLength>,
-		chain_id: u32,
+		chain_id: CurrencyId,
 	) -> Self {
 		Self {
 			id,

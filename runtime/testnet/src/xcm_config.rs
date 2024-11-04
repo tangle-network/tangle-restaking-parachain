@@ -130,7 +130,7 @@ impl<T: Get<ParaId>> Convert<CurrencyId, Option<Location>> for TangleCurrencyIdC
 
 		match id {
 			Token2(DOT_TOKEN_ID) => Some(Location::parent()),
-			Native(BNC) => Some(native_currency_location(id)),
+			Native(TNT) => Some(native_currency_location(id)),
 			// Moonbeam Native token
 			Token2(GLMR_TOKEN_ID) => Some(Location::new(
 				1,
@@ -170,7 +170,7 @@ impl<T: Get<ParaId>> Convert<Location, Option<CurrencyId>> for TangleCurrencyIdC
 				let key = &data[..*length as usize];
 				if let Ok(currency_id) = CurrencyId::decode(&mut &key[..]) {
 					match currency_id {
-						Native(BNC) => Some(currency_id),
+						Native(TNT) => Some(currency_id),
 						_ => None,
 					}
 				} else {
@@ -182,7 +182,7 @@ impl<T: Get<ParaId>> Convert<Location, Option<CurrencyId>> for TangleCurrencyIdC
 				let key = &data[..*length as usize];
 				if let Ok(currency_id) = CurrencyId::decode(&mut &key[..]) {
 					match currency_id {
-						Native(BNC) => Some(currency_id),
+						Native(TNT) => Some(currency_id),
 						_ => None,
 					}
 				} else {
@@ -337,7 +337,7 @@ parameter_types! {
 			1,
 			[xcm::v4::Junction::Parachain(SelfParaId::get()), xcm::v4::Junction::from(BoundedVec::try_from(NativeCurrencyId::get().encode()).unwrap())],
 		).into(),
-		// BNC:DOT = 80:1
+		// TNT:DOT = 80:1
 		dot_per_second::<Runtime>() * 80,
 		0
 	);
@@ -346,7 +346,7 @@ parameter_types! {
 			0,
 			[xcm::v4::Junction::from(BoundedVec::try_from(NativeCurrencyId::get().encode()).unwrap())]
 		).into(),
-		// BNC:DOT = 80:1
+		// TNT:DOT = 80:1
 		dot_per_second::<Runtime>() * 80,
 	0
 	);

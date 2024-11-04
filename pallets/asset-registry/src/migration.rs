@@ -20,7 +20,7 @@ use crate::*;
 use frame_support::traits::{Get, OnRuntimeUpgrade};
 #[cfg(feature = "try-runtime")]
 use sp_runtime::TryRuntimeError;
-use tangle_primitives::{CurrencyId, BNC};
+use tangle_primitives::{CurrencyId, TNT};
 use xcm::v3::prelude::{GeneralKey, X1};
 
 const LOG_TARGET: &str = "asset-registry::migration";
@@ -56,20 +56,20 @@ const BNC_LOCATION: xcm::v3::Location = xcm::v3::Location {
 pub struct InsertBNCMetadata<T>(PhantomData<T>);
 impl<T: Config> OnRuntimeUpgrade for InsertBNCMetadata<T> {
 	fn on_runtime_upgrade() -> Weight {
-		log::info!(target: LOG_TARGET, "Start to insert BNC Metadata...");
+		log::info!(target: LOG_TARGET, "Start to insert TNT Metadata...");
 		CurrencyMetadatas::<T>::insert(
-			BNC,
+			TNT,
 			AssetMetadata {
 				name: b"Tangle Native Token".to_vec(),
-				symbol: b"BNC".to_vec(),
+				symbol: b"TNT".to_vec(),
 				decimals: 12,
 				minimal_balance: BalanceOf::<T>::unique_saturated_from(10_000_000_000u128),
 			},
 		);
 
-		CurrencyIdToLocations::<T>::insert(BNC, BNC_LOCATION);
+		CurrencyIdToLocations::<T>::insert(TNT, BNC_LOCATION);
 
-		LocationToCurrencyIds::<T>::insert(BNC_LOCATION, BNC);
+		LocationToCurrencyIds::<T>::insert(BNC_LOCATION, TNT);
 
 		T::DbWeight::get().reads_writes(3_u64 + 1, 3_u64 + 1)
 	}
@@ -83,12 +83,12 @@ impl<T: Config> OnRuntimeUpgrade for InsertBNCMetadata<T> {
 
 	#[cfg(feature = "try-runtime")]
 	fn post_upgrade(_cnt: Vec<u8>) -> Result<(), TryRuntimeError> {
-		let metadata = CurrencyMetadatas::<T>::get(BNC);
+		let metadata = CurrencyMetadatas::<T>::get(TNT);
 		assert_eq!(
 			metadata,
 			Some(AssetMetadata {
 				name: b"Tangle Native Token".to_vec(),
-				symbol: b"BNC".to_vec(),
+				symbol: b"TNT".to_vec(),
 				decimals: 12,
 				minimal_balance: BalanceOf::<T>::unique_saturated_from(10_000_000_000u128),
 			})
@@ -99,7 +99,7 @@ impl<T: Config> OnRuntimeUpgrade for InsertBNCMetadata<T> {
 			metadata
 		);
 
-		let location = CurrencyIdToLocations::<T>::get(BNC);
+		let location = CurrencyIdToLocations::<T>::get(TNT);
 		assert_eq!(location, Some(BNC_LOCATION));
 
 		log::info!(
@@ -109,7 +109,7 @@ impl<T: Config> OnRuntimeUpgrade for InsertBNCMetadata<T> {
 		);
 
 		let currency = LocationToCurrencyIds::<T>::get(BNC_LOCATION);
-		assert_eq!(currency, Some(BNC));
+		assert_eq!(currency, Some(TNT));
 		log::info!(
 			target: LOG_TARGET,
 			"InsertBNCMetadata post-migrate storage: {:?}",

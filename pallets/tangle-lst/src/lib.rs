@@ -138,6 +138,7 @@ use sp_runtime::Perbill;
 use sp_staking::{EraIndex, StakingInterface};
 use sp_std::{collections::btree_map::BTreeMap, fmt::Debug, ops::Div, vec::Vec};
 use tangle_primitives::staking::StakingAgent;
+use tangle_primitives::CurrencyId;
 use xcm::v3::MultiLocation;
 
 /// The log target of this pallet.
@@ -366,6 +367,10 @@ pub mod pallet {
 	#[pallet::storage]
 	pub type ClaimPermissions<T: Config> =
 		StorageMap<_, Twox64Concat, T::AccountId, ClaimPermission, ValueQuery>;
+
+	#[pallet::storage]
+	pub type CurrentEraStorage<T: Config> =
+		StorageMap<_, Twox64Concat, CurrencyId, u32, ValueQuery>;
 
 	#[pallet::genesis_config]
 	pub struct GenesisConfig<T: Config> {
@@ -721,6 +726,7 @@ pub mod pallet {
 				pool_id.into(),
 				&member_account,
 				unbonding_points,
+				Preservation::Expendable,
 				Precision::Exact,
 				Fortitude::Force,
 			)?;
@@ -848,10 +854,12 @@ pub mod pallet {
 			let member_account = T::Lookup::lookup(member_account)?;
 			let mut member = UnbondingMembers::<T>::get(&member_account)
 				.ok_or(Error::<T>::PoolMemberNotFound)?;
-			let current_era = T::Staking::current_era();
 
 			let bonded_pool = BondedPool::<T>::get(member.pool_id)
 				.defensive_ok_or::<Error<T>>(DefensiveError::PoolNotFound.into())?;
+
+			let current_era = CurrentEraStorage::<T>::get(&bonded_pool.chain_id);
+
 			let mut sub_pools =
 				SubPoolsStorage::<T>::get(member.pool_id).ok_or(Error::<T>::SubPoolsNotFound)?;
 
@@ -964,7 +972,7 @@ pub mod pallet {
 			nominator: AccountIdLookupOf<T>,
 			bouncer: AccountIdLookupOf<T>,
 			name: BoundedVec<u8, T::MaxNameLength>,
-			chain_id: u32,
+			chain_id: CurrencyId,
 		) -> DispatchResult {
 			let depositor = ensure_signed(origin)?;
 
@@ -992,7 +1000,7 @@ pub mod pallet {
 			bouncer: AccountIdLookupOf<T>,
 			pool_id: PoolId,
 			name: BoundedVec<u8, T::MaxNameLength>,
-			chain_id: u32,
+			chain_id: CurrencyId,
 		) -> DispatchResult {
 			let depositor = ensure_signed(origin)?;
 
@@ -1014,12 +1022,15 @@ pub mod pallet {
 		pub fn nominate(
 			origin: OriginFor<T>,
 			pool_id: PoolId,
+			amount: BalanceOf<T>,
 			validators: Vec<T::AccountId>,
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			let bonded_pool = BondedPool::<T>::get(pool_id).ok_or(Error::<T>::PoolNotFound)?;
-			ensure!(bonded_pool.can_nominate(&who), Error::<T>::NotNominator);
-			T::Staking::nominate(&bonded_pool.bonded_account(), validators)
+			// will be handled in slp pallet
+			// let bonded_pool = BondedPool::<T>::get(pool_id).ok_or(Error::<T>::PoolNotFound)?;
+			// ensure!(bonded_pool.can_nominate(&who), Error::<T>::NotNominator);
+			// T::Staking::bond(&bonded_pool.bonded_account(), amount, bonded_pool.chain_id, None)
+			Ok(())
 		}
 
 		/// Set a new state for the pool.
@@ -1485,7 +1496,7 @@ impl<T: Config> Pallet<T> {
 		bouncer: AccountIdLookupOf<T>,
 		pool_id: PoolId,
 		name: BoundedVec<u8, T::MaxNameLength>,
-		chain_id: u32,
+		chain_id: CurrencyId,
 	) -> DispatchResult {
 		let root = T::Lookup::lookup(root)?;
 		let nominator = T::Lookup::lookup(nominator)?;

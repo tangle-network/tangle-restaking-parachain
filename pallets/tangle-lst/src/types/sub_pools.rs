@@ -266,6 +266,6 @@ impl<T: Config> Get<u32> for TotalUnbondingPools<T> {
 		// NOTE: this may be dangerous in the scenario bonding_duration gets decreased because
 		// we would no longer be able to decode `BoundedBTreeMap::<EraIndex, UnbondPool<T>,
 		// TotalUnbondingPools<T>>`, which uses `TotalUnbondingPools` as the bound
-		T::Staking::bonding_duration() + T::PostUnbondingPoolsWindow::get()
+		T::PostUnbondingPoolsWindow::get()
 	}
 }

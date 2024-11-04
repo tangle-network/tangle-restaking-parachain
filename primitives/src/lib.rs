@@ -43,8 +43,8 @@ mod tests;
 
 pub use crate::{
 	currency::{
-		AssetIds, CurrencyId, ForeignAssetId, TokenId, TokenSymbol, ASTR, ASTR_TOKEN_ID, BNC, DOT,
-		DOT_TOKEN_ID, DOT_U, FIL, GLMR, GLMR_TOKEN_ID, KSM, MANTA, VBNC, VDOT, VKSM, VSKSM,
+		AssetIds, CurrencyId, ForeignAssetId, TokenId, TokenSymbol, ASTR, ASTR_TOKEN_ID, DOT,
+		DOT_TOKEN_ID, DOT_U, FIL, GLMR, GLMR_TOKEN_ID, KSM, MANTA, TNT, VBNC, VDOT, VKSM, VSKSM,
 	},
 	traits::*,
 };
@@ -342,7 +342,7 @@ impl Default for ExtraFeeInfo {
 	fn default() -> Self {
 		Self {
 			extra_fee_name: ExtraFeeName::NoExtraFee,
-			extra_fee_currency: CurrencyId::Native(TokenSymbol::BNC),
+			extra_fee_currency: CurrencyId::Native(TokenSymbol::TNT),
 		}
 	}
 }

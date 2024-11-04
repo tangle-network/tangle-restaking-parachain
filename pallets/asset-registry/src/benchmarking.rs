@@ -100,7 +100,7 @@ benchmarks! {
 		let origin = T::RegisterOrigin::try_successful_origin().map_err(|_| BenchmarkError::Weightless)?;
 		let metadata = AssetMetadata {
 			name: b"Tangle Native Coin".to_vec(),
-			symbol: b"BNC".to_vec(),
+			symbol: b"TNT".to_vec(),
 			decimals: 12,
 			minimal_balance: BalanceOf::<T>::unique_saturated_from(0u128),
 		};
@@ -117,12 +117,12 @@ benchmarks! {
 		let origin = T::RegisterOrigin::try_successful_origin().map_err(|_| BenchmarkError::Weightless)?;
 		let metadata = AssetMetadata {
 			name: b"Tangle Native Coin".to_vec(),
-			symbol: b"BNC".to_vec(),
+			symbol: b"TNT".to_vec(),
 			decimals: 12,
 			minimal_balance: BalanceOf::<T>::unique_saturated_from(0u128),
 		};
 		let v_metadata = AssetMetadata {
-			name: b"Voucher BNC".to_vec(),
+			name: b"Voucher TNT".to_vec(),
 			symbol: b"vBNC".to_vec(),
 			decimals: 12,
 			minimal_balance: BalanceOf::<T>::unique_saturated_from(0u128),
@@ -211,7 +211,7 @@ benchmarks! {
 		let origin = T::RegisterOrigin::try_successful_origin().map_err(|_| BenchmarkError::Weightless)?;
 		let metadata = AssetMetadata {
 			name: b"Tangle Native Coin".to_vec(),
-			symbol: b"BNC".to_vec(),
+			symbol: b"TNT".to_vec(),
 			decimals: 12,
 			minimal_balance: BalanceOf::<T>::unique_saturated_from(0u128),
 		};
@@ -246,7 +246,7 @@ benchmarks! {
 		let origin = T::RegisterOrigin::try_successful_origin().map_err(|_| BenchmarkError::Weightless)?;
 		let metadata = AssetMetadata {
 			name: b"Tangle Native Coin".to_vec(),
-			symbol: b"BNC".to_vec(),
+			symbol: b"TNT".to_vec(),
 			decimals: 12,
 			minimal_balance: BalanceOf::<T>::unique_saturated_from(0u128),
 		};
