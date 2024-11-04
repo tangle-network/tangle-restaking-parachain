@@ -126,7 +126,6 @@ use frame_support::{
 	},
 	DefaultNoBound, PalletError,
 };
-use tangle_primitives::staking::StakingAgent;
 use frame_system::pallet_prelude::BlockNumberFor;
 use scale_info::TypeInfo;
 use sp_core::U256;
@@ -138,6 +137,7 @@ use sp_runtime::FixedPointNumber;
 use sp_runtime::Perbill;
 use sp_staking::{EraIndex, StakingInterface};
 use sp_std::{collections::btree_map::BTreeMap, fmt::Debug, ops::Div, vec::Vec};
+use tangle_primitives::staking::StakingAgent;
 use xcm::v3::MultiLocation;
 
 /// The log target of this pallet.

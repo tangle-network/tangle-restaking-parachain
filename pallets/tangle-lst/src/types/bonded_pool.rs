@@ -15,6 +15,8 @@ pub struct BondedPoolInner<T: Config> {
 	pub state: PoolState,
 	/// pool metadata
 	pub metadata: PoolMetadata<T>,
+	/// pool bonded balance, this will be updated regularly
+	pub bonded_balance: BalanceOf<T>,
 }
 
 #[derive(Encode, Decode, MaxEncodedLen, TypeInfo, DebugNoBound, Clone)]
@@ -67,6 +69,7 @@ impl<T: Config> BondedPool<T> {
 				state: PoolState::Open,
 				chain_id,
 				metadata: PoolMetadata { name },
+				bonded_balance: Zero::zero(),
 			},
 		}
 	}
@@ -105,8 +108,7 @@ impl<T: Config> BondedPool<T> {
 	///
 	/// This is often used for bonding and issuing new funds into the pool.
 	pub fn balance_to_point(&self, new_funds: BalanceOf<T>) -> BalanceOf<T> {
-		let bonded_balance = T::Staking::active_stake(&self.bonded_account(), self.id.into())
-			.unwrap_or(Zero::zero());
+		let bonded_balance = self.bonded_balance;
 		Pallet::<T>::balance_to_point(bonded_balance, self.points(), new_funds)
 	}
 
@@ -114,8 +116,7 @@ impl<T: Config> BondedPool<T> {
 	///
 	/// This is often used for unbonding.
 	pub fn points_to_balance(&self, points: BalanceOf<T>) -> BalanceOf<T> {
-		let bonded_balance = T::Staking::active_stake(&self.bonded_account(), self.id.into())
-			.unwrap_or(Zero::zero());
+		let bonded_balance = self.bonded_balance;
 		Pallet::<T>::point_to_balance(bonded_balance, self.points(), points)
 	}
 
@@ -144,8 +145,7 @@ impl<T: Config> BondedPool<T> {
 		// `pallet-nomination-pool`. This means reducible balance always returns balance preserving
 		// ED in the account. What we want though is transferable balance given the account can be
 		// dusted.
-		T::Currency::free_balance(&account)
-			.saturating_sub(T::Staking::active_stake(&account, self.id.into()).unwrap_or_default())
+		T::Currency::free_balance(&account).saturating_sub(self.bonded_balance)
 	}
 
 	pub fn is_root(&self, who: &T::AccountId) -> bool {
@@ -210,8 +210,7 @@ impl<T: Config> BondedPool<T> {
 	pub fn ok_to_be_open(&self) -> Result<(), DispatchError> {
 		ensure!(!self.is_destroying(), Error::<T>::CanNotChangeState);
 
-		let bonded_balance = T::Staking::active_stake(&self.bonded_account(), self.id.into())
-			.unwrap_or(Zero::zero());
+		let bonded_balance = self.bonded_balance;
 		ensure!(!bonded_balance.is_zero(), Error::<T>::OverflowRisk);
 
 		let points_to_balance_ratio_floor = self
@@ -392,15 +391,16 @@ impl<T: Config> BondedPool<T> {
 	pub fn withdraw_from_staking(&self, num_slashing_spans: u32) -> Result<bool, DispatchError> {
 		let bonded_account = self.bonded_account();
 
-		let prev_total =
-			T::Staking::total_stake(&bonded_account, self.id.into()).unwrap_or_default();
-		let outcome = T::Staking::undelegate(self.chain_id.into(), bonded_account.clone(), num_slashing_spans);
-		let diff = prev_total.defensive_saturating_sub(
-			T::Staking::total_stake(&bonded_account, self.id.into()).unwrap_or_default(),
-		);
-		TotalValueLocked::<T>::mutate(|tvl| {
-			tvl.saturating_reduce(diff);
-		});
-		outcome
+		// TODO : Revisit this!!!
+		let prev_total = self.bonded_balance;
+		// let outcome = T::Staking::undelegate(self.chain_id.into(), bonded_account.clone(), num_slashing_spans);
+		// let diff = prev_total.defensive_saturating_sub(
+		// 	T::Staking::total_stake(&bonded_account, self.id.into()).unwrap_or_default(),
+		// );
+		// TotalValueLocked::<T>::mutate(|tvl| {
+		// 	tvl.saturating_reduce(diff);
+		// });
+		// outcome
+		Ok(true)
 	}
 }
