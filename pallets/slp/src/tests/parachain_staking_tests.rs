@@ -23,7 +23,7 @@ use crate::{
 		OneToManyDelegationAction, OneToManyDelegatorStatus, OneToManyLedger,
 		OneToManyScheduledRequest,
 	},
-	BNC, *,
+	TNT, *,
 };
 use frame_support::{assert_noop, assert_ok, PalletId};
 use codec::alloc::collections::BTreeMap;
@@ -51,12 +51,12 @@ fn initialize_parachain_staking_delegator() {
 		// Set minimums and maximums
 		assert_ok!(Slp::set_minimums_and_maximums(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Some(mins_and_maxs)
 		));
 
-		assert_ok!(Slp::initialize_delegator(RuntimeOrigin::signed(ALICE), BNC, None,));
-		assert_eq!(DelegatorNextIndex::<Runtime>::get(BNC), 1);
+		assert_ok!(Slp::initialize_delegator(RuntimeOrigin::signed(ALICE), TNT, None,));
+		assert_eq!(DelegatorNextIndex::<Runtime>::get(TNT), 1);
 	});
 }
 
@@ -71,12 +71,12 @@ fn parachain_staking_setup() {
 	};
 
 	// set operate_origins
-	assert_ok!(Slp::set_operate_origin(RuntimeOrigin::signed(ALICE), BNC, Some(ALICE)));
+	assert_ok!(Slp::set_operate_origin(RuntimeOrigin::signed(ALICE), TNT, Some(ALICE)));
 
 	// Set OngoingTimeUnitUpdateInterval as 1/3 round(600 blocks per round, 12 seconds per block)
 	assert_ok!(Slp::set_ongoing_time_unit_update_interval(
 		RuntimeOrigin::signed(ALICE),
-		BNC,
+		TNT,
 		Some(200)
 	));
 
@@ -85,14 +85,14 @@ fn parachain_staking_setup() {
 	// Initialize ongoing timeunit as 1.
 	assert_ok!(Slp::update_ongoing_time_unit(
 		RuntimeOrigin::signed(ALICE),
-		BNC,
+		TNT,
 		TimeUnit::Round(1)
 	));
 
 	// Initialize currency delays.
 	let delay =
 		Delays { unlock_delay: TimeUnit::Round(24), leave_delegators_delay: TimeUnit::Round(24) };
-	assert_ok!(Slp::set_currency_delays(RuntimeOrigin::signed(ALICE), BNC, Some(delay)));
+	assert_ok!(Slp::set_currency_delays(RuntimeOrigin::signed(ALICE), TNT, Some(delay)));
 
 	let mins_and_maxs = MinimumsMaximums {
 		delegator_bonded_minimum: 100_000_000_000,
@@ -111,32 +111,32 @@ fn parachain_staking_setup() {
 	// Set minimums and maximums
 	assert_ok!(Slp::set_minimums_and_maximums(
 		RuntimeOrigin::signed(ALICE),
-		BNC,
+		TNT,
 		Some(mins_and_maxs)
 	));
 
 	// First to setup index-multilocation relationship of subaccount_0
-	assert_ok!(Slp::initialize_delegator(RuntimeOrigin::signed(ALICE), BNC, None,));
+	assert_ok!(Slp::initialize_delegator(RuntimeOrigin::signed(ALICE), TNT, None,));
 
-	// update some BNC balance to treasury account
+	// update some TNT balance to treasury account
 	assert_ok!(Currencies::update_balance(
 		RuntimeOrigin::root(),
 		treasury_account_id_32.into(),
-		BNC,
+		TNT,
 		1_000_000_000_000_000_000,
 	));
 
 	// Set fee source
 	assert_ok!(Slp::set_fee_source(
 		RuntimeOrigin::signed(ALICE),
-		BNC,
+		TNT,
 		Some((treasury_location, 1_000_000_000_000)),
 	));
 
 	// Set delegator ledger
 	assert_ok!(Slp::add_validator(
 		RuntimeOrigin::signed(ALICE),
-		BNC,
+		TNT,
 		Box::new(validator_0_location),
 	));
 
@@ -159,8 +159,8 @@ fn parachain_staking_bond_to_liquidize_works() {
 		initialize_parachain_staking_delegator();
 		env_logger::try_init().unwrap_or(());
 
-		DelegatorsIndex2Multilocation::<Runtime>::insert(BNC, 0, subaccount_0_location);
-		DelegatorsMultilocation2Index::<Runtime>::insert(BNC, subaccount_0_location, 0);
+		DelegatorsIndex2Multilocation::<Runtime>::insert(TNT, 0, subaccount_0_location);
+		DelegatorsMultilocation2Index::<Runtime>::insert(TNT, subaccount_0_location, 0);
 
 		assert_ok!(ParachainStaking::join_candidates(
 			RuntimeOrigin::signed(BOB),
@@ -184,14 +184,14 @@ fn parachain_staking_bond_to_liquidize_works() {
 
 		assert_ok!(Slp::transfer_to(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(entrance_account_location),
 			Box::new(subaccount_0_location),
 			5_000_000_000_000,
 		));
 		assert_ok!(Slp::bond(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(subaccount_0_location),
 			5_000_000_000_000,
 			Some(validator_0_location),
@@ -199,7 +199,7 @@ fn parachain_staking_bond_to_liquidize_works() {
 		));
 		assert_ok!(Slp::bond_extra(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(subaccount_0_location),
 			Some(validator_0_location),
 			5_000_000_000_000,
@@ -207,7 +207,7 @@ fn parachain_staking_bond_to_liquidize_works() {
 		));
 		assert_ok!(Slp::unbond(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(subaccount_0_location),
 			Some(validator_0_location),
 			2_000_000_000_000,
@@ -270,24 +270,24 @@ fn parachain_staking_bond_to_liquidize_works() {
 			status: OneToManyDelegatorStatus::Active,
 		};
 		let ledger2 = Ledger::ParachainStaking(parachain_staking_ledger2);
-		DelegatorLedgers::<Runtime>::insert(BNC, subaccount_0_location, ledger2.clone());
+		DelegatorLedgers::<Runtime>::insert(TNT, subaccount_0_location, ledger2.clone());
 
 		System::set_block_number(700_000);
 		assert_ok!(Slp::update_ongoing_time_unit(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			TimeUnit::Round(48)
 		));
 		tangle_parachain_staking::Round::<Runtime>::set(RoundInfo::new(10000000, 0, 1));
 		assert_eq!(ParachainStaking::round(), RoundInfo::new(10000000, 0, 1));
-		assert_ok!(LstMinting::update_ongoing_time_unit(BNC, TimeUnit::Round(1000)));
+		assert_ok!(LstMinting::update_ongoing_time_unit(TNT, TimeUnit::Round(1000)));
 
 		// let delegation_scheduled_requests = ParachainStaking::delegation_scheduled_requests(BOB);
 		// log::debug!("test5{:?}", delegation_scheduled_requests);
 
 		assert_ok!(Slp::liquidize(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(subaccount_0_location),
 			None,
 			Some(validator_0_location),
@@ -330,12 +330,12 @@ fn parachain_staking_bond_extra_works() {
 		let ledger = Ledger::ParachainStaking(parachain_staking_ledger);
 
 		// Set delegator ledger
-		DelegatorLedgers::<Runtime>::insert(BNC, subaccount_0_location, ledger);
+		DelegatorLedgers::<Runtime>::insert(TNT, subaccount_0_location, ledger);
 
 		assert_noop!(
 			Slp::bond_extra(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				Some(validator_0_location),
 				5_000_000_000_000,
@@ -379,12 +379,12 @@ fn parachain_staking_unbond_works() {
 		let ledger = Ledger::ParachainStaking(parachain_staking_ledger);
 
 		// Set delegator ledger
-		DelegatorLedgers::<Runtime>::insert(BNC, subaccount_0_location, ledger);
+		DelegatorLedgers::<Runtime>::insert(TNT, subaccount_0_location, ledger);
 
 		assert_noop!(
 			Slp::unbond(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				Some(validator_0_location),
 				2_000_000_000_000,
@@ -428,12 +428,12 @@ fn parachain_staking_unbond_all_works() {
 		let ledger = Ledger::ParachainStaking(parachain_staking_ledger);
 
 		// Set delegator ledger
-		DelegatorLedgers::<Runtime>::insert(BNC, subaccount_0_location, ledger);
+		DelegatorLedgers::<Runtime>::insert(TNT, subaccount_0_location, ledger);
 
 		assert_noop!(
 			Slp::unbond_all(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				None
 			),
@@ -484,12 +484,12 @@ fn parachain_staking_rebond_works() {
 		let ledger = Ledger::ParachainStaking(parachain_staking_ledger);
 
 		// Set delegator ledger
-		DelegatorLedgers::<Runtime>::insert(BNC, subaccount_0_location, ledger);
+		DelegatorLedgers::<Runtime>::insert(TNT, subaccount_0_location, ledger);
 
 		assert_noop!(
 			Slp::rebond(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				Some(validator_0_location),
 				None,
@@ -537,12 +537,12 @@ fn parachain_staking_undelegate_works() {
 		let ledger = Ledger::ParachainStaking(parachain_staking_ledger);
 
 		// Set delegator ledger
-		DelegatorLedgers::<Runtime>::insert(BNC, subaccount_0_location, ledger);
+		DelegatorLedgers::<Runtime>::insert(TNT, subaccount_0_location, ledger);
 
 		assert_noop!(
 			Slp::undelegate(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				vec![validator_0_location],
 				None
@@ -594,12 +594,12 @@ fn parachain_staking_redelegate_works() {
 		let ledger = Ledger::ParachainStaking(parachain_staking_ledger);
 
 		// Set delegator ledger
-		DelegatorLedgers::<Runtime>::insert(BNC, Box::new(subaccount_0_location), ledger);
+		DelegatorLedgers::<Runtime>::insert(TNT, Box::new(subaccount_0_location), ledger);
 
 		assert_noop!(
 			Slp::redelegate(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				None,
 				None
@@ -653,12 +653,12 @@ fn parachain_staking_liquidize_works() {
 		let ledger = Ledger::ParachainStaking(parachain_staking_ledger);
 
 		// Set delegator ledger
-		DelegatorLedgers::<Runtime>::insert(BNC, subaccount_0_location, ledger);
+		DelegatorLedgers::<Runtime>::insert(TNT, subaccount_0_location, ledger);
 
 		assert_noop!(
 			Slp::liquidize(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				None,
 				Some(validator_0_location),
@@ -672,14 +672,14 @@ fn parachain_staking_liquidize_works() {
 
 		assert_ok!(Slp::update_ongoing_time_unit(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			TimeUnit::Round(24)
 		));
 
 		assert_noop!(
 			Slp::liquidize(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				None,
 				Some(validator_0_location),
@@ -705,12 +705,12 @@ fn parachain_staking_liquidize_works() {
 			BTreeMap::new();
 		request_briefs_set.insert(validator_0_location, (TimeUnit::Round(50), 10_000_000_000_000));
 
-		assert_ok!(Slp::initialize_delegator(RuntimeOrigin::signed(ALICE), BNC, None,));
+		assert_ok!(Slp::initialize_delegator(RuntimeOrigin::signed(ALICE), TNT, None,));
 
 		assert_noop!(
 			Slp::bond(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				5_000_000_000_000,
 				Some(validator_0_location),
@@ -731,12 +731,12 @@ fn parachain_staking_liquidize_works() {
 		};
 		let ledger = Ledger::ParachainStaking(parachain_staking_ledger);
 		// Set delegator ledger
-		DelegatorLedgers::<Runtime>::insert(BNC, subaccount_0_location, ledger);
+		DelegatorLedgers::<Runtime>::insert(TNT, subaccount_0_location, ledger);
 
 		assert_noop!(
 			Slp::liquidize(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				None,
 				Some(validator_0_location),
@@ -750,14 +750,14 @@ fn parachain_staking_liquidize_works() {
 
 		assert_ok!(Slp::update_ongoing_time_unit(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			TimeUnit::Round(1000)
 		));
 
 		assert_noop!(
 			Slp::liquidize(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 				None,
 				Some(validator_0_location),
@@ -786,19 +786,19 @@ fn parachain_staking_transfer_back_works() {
 			interior: X1(AccountId32 { network: None, id: exit_account_id_32 }),
 		};
 
-		DelegatorsIndex2Multilocation::<Runtime>::insert(BNC, 0, subaccount_0_location);
-		DelegatorsMultilocation2Index::<Runtime>::insert(BNC, subaccount_0_location, 0);
+		DelegatorsIndex2Multilocation::<Runtime>::insert(TNT, 0, subaccount_0_location);
+		DelegatorsMultilocation2Index::<Runtime>::insert(TNT, subaccount_0_location, 0);
 
 		assert_ok!(Currencies::update_balance(
 			RuntimeOrigin::root(),
 			CHARLIE,
-			BNC,
+			TNT,
 			1000_000_000_000_000,
 		));
 
 		assert_ok!(Slp::transfer_back(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(subaccount_0_location),
 			Box::new(exit_account_location),
 			5_000_000_000_000,
@@ -825,19 +825,19 @@ fn parachain_staking_transfer_to_works() {
 			interior: X1(AccountId32 { network: None, id: entrance_account_id_32 }),
 		};
 
-		DelegatorsIndex2Multilocation::<Runtime>::insert(BNC, 0, subaccount_0_location);
-		DelegatorsMultilocation2Index::<Runtime>::insert(BNC, subaccount_0_location, 0);
+		DelegatorsIndex2Multilocation::<Runtime>::insert(TNT, 0, subaccount_0_location);
+		DelegatorsMultilocation2Index::<Runtime>::insert(TNT, subaccount_0_location, 0);
 
 		assert_ok!(Currencies::update_balance(
 			RuntimeOrigin::root(),
 			entrance_account_id_32.into(),
-			BNC,
+			TNT,
 			1000_000_000_000_000,
 		));
 
 		assert_ok!(Slp::transfer_to(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(entrance_account_location),
 			Box::new(subaccount_0_location),
 			5_000_000_000_000,
@@ -872,7 +872,7 @@ fn supplement_fee_account_whitelist_works() {
 		let source_location = Slp::account_32_to_local_location(source_account_id_32).unwrap();
 		assert_ok!(Slp::set_fee_source(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Some((source_location, 1_000_000_000_000))
 		));
 
@@ -880,7 +880,7 @@ fn supplement_fee_account_whitelist_works() {
 		assert_noop!(
 			Slp::supplement_fee_reserve(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(subaccount_0_location),
 			),
 			Error::<Runtime>::DestAccountNotValid
@@ -889,7 +889,7 @@ fn supplement_fee_account_whitelist_works() {
 		assert_noop!(
 			Slp::supplement_fee_reserve(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(entrance_account_location),
 			),
 			Error::<Runtime>::DestAccountNotValid
@@ -898,14 +898,14 @@ fn supplement_fee_account_whitelist_works() {
 		// register entrance_account_location as operateRuntimeOrigin
 		assert_ok!(Slp::set_operate_origin(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Some(entrance_account_id)
 		));
 
 		assert_noop!(
 			Slp::supplement_fee_reserve(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(exit_account_location),
 			),
 			Error::<Runtime>::DestAccountNotValid
@@ -914,21 +914,21 @@ fn supplement_fee_account_whitelist_works() {
 		// register exit_account_location into whitelist
 		assert_ok!(Slp::add_supplement_fee_account_to_whitelist(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(exit_account_location),
 		));
 
 		// remove exit_account_location from whitelist
 		assert_ok!(Slp::remove_supplement_fee_account_from_whitelist(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(exit_account_location),
 		));
 
 		assert_noop!(
 			Slp::supplement_fee_reserve(
 				RuntimeOrigin::signed(ALICE),
-				BNC,
+				TNT,
 				Box::new(exit_account_location),
 			),
 			Error::<Runtime>::DestAccountNotValid
@@ -961,14 +961,14 @@ fn add_validator_and_remove_validator_works() {
 		// Set minimums and maximums
 		assert_ok!(Slp::set_minimums_and_maximums(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Some(mins_and_maxs)
 		));
 
 		// Set delegator ledger
 		assert_ok!(Slp::add_validator(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(validator_0_location),
 		));
 
@@ -976,16 +976,16 @@ fn add_validator_and_remove_validator_works() {
 		valis.push(validator_0_location);
 
 		let bounded_valis = BoundedVec::try_from(valis).unwrap();
-		assert_eq!(Slp::get_validators(BNC), Some(bounded_valis));
+		assert_eq!(Slp::get_validators(TNT), Some(bounded_valis));
 
 		assert_ok!(Slp::remove_validator(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Box::new(validator_0_location),
 		));
 
 		let empty_bounded_vec = BoundedVec::default();
-		assert_eq!(Slp::get_validators(BNC), Some(empty_bounded_vec));
+		assert_eq!(Slp::get_validators(TNT), Some(empty_bounded_vec));
 	});
 }
 
@@ -1000,7 +1000,7 @@ fn charge_host_fee_and_tune_lst_exchange_rate_works() {
 
 		// First set base Lst exchange rate. Should be 1:1.
 		assert_ok!(Currencies::deposit(VBNC, &ALICE, 1000));
-		assert_ok!(Slp::increase_token_pool(RuntimeOrigin::signed(ALICE), BNC, 1000));
+		assert_ok!(Slp::increase_token_pool(RuntimeOrigin::signed(ALICE), TNT, 1000));
 
 		// Set the hosting fee to be 20%, and the beneficiary to be bifrost treasury account.
 		let pct = Permill::from_percent(20);
@@ -1012,27 +1012,27 @@ fn charge_host_fee_and_tune_lst_exchange_rate_works() {
 
 		assert_ok!(Slp::set_hosting_fees(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Some((pct, treasury_location))
 		));
 
 		let pct_100 = Permill::from_percent(100);
 		assert_ok!(Slp::set_currency_tune_exchange_rate_limit(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			Some((1, pct_100))
 		));
 
 		// call the charge_host_fee_and_tune_lst_exchange_rate
 		assert_ok!(Slp::charge_host_fee_and_tune_lst_exchange_rate(
 			RuntimeOrigin::signed(ALICE),
-			BNC,
+			TNT,
 			1000,
 			Some(subaccount_0_location)
 		));
 
 		// check token pool, should be 1000 + 1000 = 2000
-		assert_eq!(<Runtime as Config>::LstMinting::get_token_pool(BNC), 2000);
+		assert_eq!(<Runtime as Config>::LstMinting::get_token_pool(TNT), 2000);
 		// check vBNC issuance, should be 1000 + 20% * 1000 = 1200
 		assert_eq!(Currencies::total_issuance(VBNC), 1200);
 	});

@@ -29,7 +29,7 @@ use crate::{
 	},
 	AccountIdOf, BalanceOf, Config, DelegatorLedgerXcmUpdateQueue, DelegatorLedgers,
 	DelegatorsMultilocation2Index, LedgerUpdateEntry, MinimumsAndMaximums, Pallet, TimeUnit,
-	ValidatorsByDelegatorUpdateEntry, BNC,
+	ValidatorsByDelegatorUpdateEntry, TNT,
 };
 use core::marker::PhantomData;
 
@@ -183,7 +183,7 @@ impl<T: Config>
 		let validator_multilocation = validator.as_ref().ok_or(Error::<T>::Unexpected)?;
 
 		let mut query_index = 0;
-		if currency_id == BNC {
+		if currency_id == TNT {
 			let validator_account_id =
 				Pallet::<T>::multilocation_to_account(validator_multilocation)?;
 			let delegator_account_id = Pallet::<T>::multilocation_to_account(who)?;
@@ -358,7 +358,7 @@ impl<T: Config>
 		}
 
 		let mut query_index = 0;
-		if currency_id == BNC {
+		if currency_id == TNT {
 			// bond extra amount to the existing delegation.
 			let validator_multilocation = validator.as_ref().ok_or(Error::<T>::Unexpected)?;
 			let validator_account_id =
@@ -512,7 +512,7 @@ impl<T: Config>
 		}
 
 		let mut query_index = 0;
-		if currency_id == BNC {
+		if currency_id == TNT {
 			let validator_multilocation = validator.as_ref().ok_or(Error::<T>::Unexpected)?;
 			let validator_account_id =
 				Pallet::<T>::multilocation_to_account(validator_multilocation)?;
@@ -633,7 +633,7 @@ impl<T: Config>
 		currency_id: CurrencyId,
 		_weight_and_fee: Option<(Weight, BalanceOf<T>)>,
 	) -> Result<QueryId, Error<T>> {
-		ensure!(currency_id == BNC, Error::<T>::Unsupported);
+		ensure!(currency_id == TNT, Error::<T>::Unsupported);
 
 		// check if the delegator exists.
 		let ledger_option = DelegatorLedgers::<T>::get(currency_id, who);
@@ -733,7 +733,7 @@ impl<T: Config>
 		}
 
 		let mut query_index = 0;
-		if currency_id == BNC {
+		if currency_id == TNT {
 			let validator_multilocation = validator.as_ref().ok_or(Error::<T>::Unexpected)?;
 			let validator_account_id =
 				Pallet::<T>::multilocation_to_account(validator_multilocation)?;
@@ -876,7 +876,7 @@ impl<T: Config>
 		}
 
 		let mut query_index = 0;
-		if currency_id == BNC {
+		if currency_id == TNT {
 			let validator_account_id = Pallet::<T>::multilocation_to_account(validator)?;
 			let delegator_account_id = Pallet::<T>::multilocation_to_account(who)?;
 
@@ -995,7 +995,7 @@ impl<T: Config>
 		currency_id: CurrencyId,
 		_weight_and_fee: Option<(Weight, BalanceOf<T>)>,
 	) -> Result<QueryId, Error<T>> {
-		ensure!(currency_id == BNC, Error::<T>::Unsupported);
+		ensure!(currency_id == TNT, Error::<T>::Unsupported);
 
 		// first check if the delegator exists.
 		let ledger_option = DelegatorLedgers::<T>::get(currency_id, who);
@@ -1089,7 +1089,7 @@ impl<T: Config>
 		}
 
 		let mut query_index = 0;
-		if currency_id == BNC {
+		if currency_id == TNT {
 			let validator_multilocation = validator.as_ref().ok_or(Error::<T>::Unexpected)?;
 			let validator_account_id =
 				Pallet::<T>::multilocation_to_account(validator_multilocation)?;
@@ -1360,7 +1360,7 @@ impl<T: Config>
 		// Make sure the receiving account is the Exit_account from Lst-minting module.
 		let (entrance_account, _) = T::LstMinting::get_entrance_and_exit_accounts();
 
-		if currency_id == BNC {
+		if currency_id == TNT {
 			let from_account = Pallet::<T>::multilocation_to_account(from)?;
 			T::MultiCurrency::transfer(currency_id, &from_account, &entrance_account, amount)
 				.map_err(|_| Error::<T>::Unexpected)?;
@@ -1437,7 +1437,7 @@ impl<T: Config>
 		let (entrance_account, _) = T::LstMinting::get_entrance_and_exit_accounts();
 		ensure!(from_account_id == entrance_account, Error::<T>::InvalidAccount);
 
-		if currency_id == BNC {
+		if currency_id == TNT {
 			let to_account = Pallet::<T>::multilocation_to_account(to)?;
 			T::MultiCurrency::transfer(currency_id, &from_account_id, &to_account, amount)
 				.map_err(|_| Error::<T>::Unexpected)?;
@@ -1526,7 +1526,7 @@ impl<T: Config>
 		to: &MultiLocation,
 		currency_id: CurrencyId,
 	) -> Result<(), Error<T>> {
-		if currency_id == BNC {
+		if currency_id == TNT {
 			ensure!(!amount.is_zero(), Error::<T>::AmountZero);
 			let from_account_id = Pallet::<T>::multilocation_to_account(from)?;
 			let to_account_id = Pallet::<T>::multilocation_to_account(to)?;
@@ -1546,7 +1546,7 @@ impl<T: Config>
 		manual_mode: bool,
 		currency_id: CurrencyId,
 	) -> Result<bool, Error<T>> {
-		ensure!(currency_id != BNC, Error::<T>::Unsupported);
+		ensure!(currency_id != TNT, Error::<T>::Unsupported);
 		// If this is manual mode, it is always updatable.
 		let should_update = if manual_mode {
 			true

@@ -43,7 +43,7 @@ use sp_runtime::{
 use sp_std::{boxed::Box, vec::Vec};
 use tangle_asset_registry::AssetIdMaps;
 use tangle_primitives::{
-	currency::{BNC, KSM, MANTA, VKSM},
+	currency::{TNT, KSM, MANTA, VKSM},
 	Amount, Balance, CurrencyId, DoNothingExecuteXcm, DoNothingRouter, SlpxOperator, TokenSymbol,
 	XcmDestWeightAndFeeHandler, XcmOperationType,
 };
@@ -114,7 +114,7 @@ impl tangle_stable_asset::Config for Runtime {
 }
 
 parameter_types! {
-	pub const NativeCurrencyId: CurrencyId = BNC;
+	pub const NativeCurrencyId: CurrencyId = TNT;
 	pub const RelayCurrencyId: CurrencyId = KSM;
 }
 
@@ -385,7 +385,7 @@ impl Convert<(u16, CurrencyId), MultiLocation> for SubAccountIndexMultiLocationC
 				}),
 			),
 			// Tangle Kusama Native token
-			CurrencyId::Native(TokenSymbol::BNC) => MultiLocation::new(
+			CurrencyId::Native(TokenSymbol::TNT) => MultiLocation::new(
 				0,
 				X1(Junction::AccountId32 {
 					network: None,
@@ -494,7 +494,7 @@ impl Convert<CurrencyId, Option<xcm::v4::Location>> for TangleCurrencyIdConvert 
 				[xcm::v4::Junction::Parachain(2023), xcm::v4::Junction::PalletInstance(10)],
 			)),
 			Token(KSM) => Some(xcm::v4::Location::parent()),
-			Native(BNC) => Some(xcm::v4::Location::new(
+			Native(TNT) => Some(xcm::v4::Location::new(
 				0,
 				[xcm::v4::Junction::from(BoundedVec::try_from("0x0001".encode()).unwrap())],
 			)),
@@ -666,7 +666,7 @@ impl ExtBuilder {
 	}
 
 	pub fn one_hundred_for_alice(self) -> Self {
-		self.balances(vec![(ALICE, BNC, 100), (ALICE, KSM, 100), (ALICE, VKSM, 100)])
+		self.balances(vec![(ALICE, TNT, 100), (ALICE, KSM, 100), (ALICE, VKSM, 100)])
 	}
 
 	pub fn build(self) -> sp_io::TestExternalities {
@@ -677,7 +677,7 @@ impl ExtBuilder {
 				.endowed_accounts
 				.clone()
 				.into_iter()
-				.filter(|(_, currency_id, _)| *currency_id == BNC)
+				.filter(|(_, currency_id, _)| *currency_id == TNT)
 				.map(|(account_id, _, initial_balance)| (account_id, initial_balance))
 				.collect::<Vec<_>>(),
 		}
@@ -688,7 +688,7 @@ impl ExtBuilder {
 			balances: self
 				.endowed_accounts
 				.into_iter()
-				.filter(|(_, currency_id, _)| *currency_id != BNC)
+				.filter(|(_, currency_id, _)| *currency_id != TNT)
 				.collect::<Vec<_>>(),
 		}
 		.assimilate_storage(&mut t)

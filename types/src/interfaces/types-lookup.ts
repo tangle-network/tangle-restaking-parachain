@@ -3900,7 +3900,7 @@ declare module '@polkadot/types/lookup' {
 		readonly isMovr: boolean;
 		readonly type:
 			| 'Asg'
-			| 'Bnc'
+			| 'TNT'
 			| 'Kusd'
 			| 'Dot'
 			| 'Ksm'
