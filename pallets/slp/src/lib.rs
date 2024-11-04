@@ -47,7 +47,7 @@ use sp_std::{boxed::Box, vec, vec::Vec};
 use tangle_asset_registry::AssetMetadata;
 use tangle_parachain_staking::ParachainStakingInterface;
 use tangle_primitives::{
-	currency::{BNC, KSM, MANTA, MOVR, PHA},
+	currency::{KSM, MANTA, MOVR, PHA, TNT},
 	staking::{QueryResponseManager, StakingAgent},
 	traits::XcmDestWeightAndFeeHandler,
 	CurrencyId, CurrencyIdExt, CurrencyIdMapping, DerivativeAccountHandler, DerivativeIndex,
@@ -1282,7 +1282,7 @@ pub mod pallet {
 			let (source_location, reserved_fee) =
 				FeeSources::<T>::get(currency_id).ok_or(Error::<T>::FeeSourceNotExist)?;
 
-			// If currency is BNC, transfer directly.
+			// If currency is TNT, transfer directly.
 			// Otherwise, call supplement_fee_reserve of StakingFeeManager trait.
 			if currency_id.is_native() {
 				let source_account = Self::native_multilocation_to_account(&source_location)?;
@@ -2260,7 +2260,7 @@ pub mod pallet {
 		) -> Result<StakingAgentBoxType<T>, Error<T>> {
 			match currency_id {
 				KSM | DOT => Ok(Box::new(PolkadotAgent::<T>::new())),
-				BNC | MOVR | GLMR | MANTA => Ok(Box::new(ParachainStakingAgent::<T>::new())),
+				TNT | MOVR | GLMR | MANTA => Ok(Box::new(ParachainStakingAgent::<T>::new())),
 				FIL => Ok(Box::new(FilecoinAgent::<T>::new())),
 				PHA => Ok(Box::new(PhalaAgent::<T>::new())),
 				ASTR => Ok(Box::new(AstarAgent::<T>::new())),
@@ -2288,76 +2288,6 @@ pub mod pallet {
 		fn all_delegation_requests_occupied(currency_id: CurrencyId) -> bool {
 			DelegationsOccupied::<T>::get(currency_id).unwrap_or_default()
 		}
-	}
-}
-
-impl<T: Config>
-	tangle_primitives::staking::StakingAgentDelegator<
-		T::AccountId,
-		MultiLocation,
-		CurrencyIdOf<T>,
-		BalanceOf<T>,
-		DispatchError,
-	> for Pallet<T>
-{
-	/// Delegate to some validators.
-	fn delegate(
-		_who: &T::AccountId,
-		targets: &Vec<MultiLocation>,
-		currency_id: CurrencyIdOf<T>,
-		weight_and_fee: Option<(Weight, BalanceOf<T>)>,
-	) -> Result<QueryId, DispatchError> {
-		// TODO : Refactor this
-		let location =
-			MultiLocation { parents: 100, interior: X1(Junction::from(BoundedVec::default())) };
-
-		let staking_agent = Self::get_currency_staking_agent(currency_id)?;
-		let query_id = staking_agent.delegate(&location, targets, currency_id, weight_and_fee)?;
-		let _query_id_hash = <T as frame_system::Config>::Hashing::hash(&query_id.encode());
-		Ok(query_id)
-	}
-
-	/// Delegate to some validators.
-	fn undelegate(
-		_who: &T::AccountId,
-		targets: &Vec<MultiLocation>,
-		currency_id: CurrencyIdOf<T>,
-		weight_and_fee: Option<(Weight, BalanceOf<T>)>,
-	) -> Result<QueryId, DispatchError> {
-		// TODO : Refactor this
-		let location =
-			MultiLocation { parents: 100, interior: X1(Junction::from(BoundedVec::default())) };
-
-		let staking_agent = Self::get_currency_staking_agent(currency_id)?;
-		let query_id = staking_agent.undelegate(&location, targets, currency_id, weight_and_fee)?;
-		let _query_id_hash = <T as frame_system::Config>::Hashing::hash(&query_id.encode());
-		Ok(query_id)
-	}
-
-	/// Delegate to some validators.
-	fn liquidize(
-		_who: &T::AccountId,
-		targets: &Vec<MultiLocation>,
-		currency_id: CurrencyId,
-		_amount: Option<BalanceOf<T>>,
-		weight_and_fee: Option<(Weight, BalanceOf<T>)>,
-	) -> Result<QueryId, DispatchError> {
-		// TODO : Refactor this
-		let location =
-			MultiLocation { parents: 100, interior: X1(Junction::from(BoundedVec::default())) };
-
-		let staking_agent = Self::get_currency_staking_agent(currency_id)?;
-		let target_option: Option<MultiLocation> = targets.first().cloned();
-		let query_id = staking_agent.liquidize(
-			&location,
-			&None,
-			&target_option,
-			currency_id,
-			None,
-			weight_and_fee,
-		)?;
-		let _query_id_hash = <T as frame_system::Config>::Hashing::hash(&query_id.encode());
-		Ok(query_id)
 	}
 }
 

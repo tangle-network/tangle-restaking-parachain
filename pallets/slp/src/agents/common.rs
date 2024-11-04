@@ -25,7 +25,7 @@ use crate::{
 	DelegatorLedgers, DelegatorNextIndex, DelegatorsIndex2Multilocation,
 	DelegatorsMultilocation2Index, Encode, Event, FeeSources, Ledger, LedgerUpdateEntry,
 	MinimumsAndMaximums, Pallet, TimeUnit, Validators, Vec, Weight, XcmOperationType, Zero, ASTR,
-	BNC, DOT, GLMR, KSM, MANTA, MOVR, PHA,
+	DOT, GLMR, KSM, MANTA, MOVR, PHA, TNT,
 };
 use frame_support::{dispatch::GetDispatchInfo, ensure, traits::Len};
 use orml_traits::{MultiCurrency, XcmTransfer};
@@ -594,7 +594,7 @@ impl<T: Config> Pallet<T> {
 					Err(Error::<T>::InvalidTimeUnit)?
 				}
 			},
-			(BNC, TimeUnit::Round(current_round))
+			(TNT, TimeUnit::Round(current_round))
 			| (MOVR, TimeUnit::Round(current_round))
 			| (GLMR, TimeUnit::Round(current_round))
 			| (MANTA, TimeUnit::Round(current_round)) => {

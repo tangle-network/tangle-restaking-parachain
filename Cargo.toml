@@ -15,8 +15,8 @@ members = [
 	"pallets/asset-registry",
 	"pallets/currencies",
 	"pallets/xcm-interface",
-	"pallets/lst-minting",
 	"pallets/slp",
+	"pallets/tangle-lst",
 	"pallets/parachain-staking",
 	"runtime/polkadot",
 	"runtime/testnet",
@@ -37,6 +37,7 @@ tangle-lst-minting = { path = "pallets/lst-minting", default-features = false }
 tangle-slp = { path = "pallets/slp", default-features = false }
 tangle-xcm-interface = { path = "pallets/xcm-interface", default-features = false }
 pallet-traits = { path = "pallets/traits", default-features = false }
+pallet-tangle-lst = { path = "pallets/tangle-lst", default-features = false }
 
 # Orml
 orml-tokens = { version = "1.0.0", default-features = false }

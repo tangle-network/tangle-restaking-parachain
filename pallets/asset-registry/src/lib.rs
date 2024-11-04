@@ -673,10 +673,10 @@ impl<T: Config> CurrencyIdMapping<CurrencyId, MultiLocation, AssetMetadata<Balan
 impl<T: Config> CurrencyIdConversion<CurrencyId, MultiLocation> for AssetIdMaps<T> {
 	fn convert_to_token(currency_id: CurrencyId) -> Result<CurrencyId, ()> {
 		match currency_id {
-			CurrencyId::VSBond(TokenSymbol::BNC, 2001, 13, 20) => {
+			CurrencyId::VSBond(TokenSymbol::TNT, 2001, 13, 20) => {
 				Ok(CurrencyId::Token(TokenSymbol::KSM))
 			},
-			CurrencyId::Lst(TokenSymbol::BNC) => Ok(CurrencyId::Native(TokenSymbol::BNC)),
+			CurrencyId::Lst(TokenSymbol::TNT) => Ok(CurrencyId::Native(TokenSymbol::TNT)),
 			CurrencyId::Lst(token_symbol)
 			| CurrencyId::VSToken(token_symbol)
 			| CurrencyId::VSBond(token_symbol, ..) => Ok(CurrencyId::Token(token_symbol)),
@@ -728,8 +728,8 @@ impl<T: Config> CurrencyIdConversion<CurrencyId, MultiLocation> for AssetIdMaps<
 			CurrencyId::Token(token_symbol) => {
 				let mut vs_bond = CurrencyId::VSBond(token_symbol, index, first_slot, last_slot);
 				if vs_bond == CurrencyId::VSBond(TokenSymbol::KSM, 2001, 13, 20) {
-					// fix vsBOND::BNC
-					vs_bond = CurrencyId::VSBond(TokenSymbol::BNC, 2001, 13, 20);
+					// fix vsBOND::TNT
+					vs_bond = CurrencyId::VSBond(TokenSymbol::TNT, 2001, 13, 20);
 				}
 				Ok(vs_bond)
 			},
@@ -808,7 +808,7 @@ impl<T: Config> CurrencyIdRegister<CurrencyId> for AssetIdMaps<T> {
 		let option_token_metadata =
 			if CurrencyMetadatas::<T>::contains_key(CurrencyId::Token(token_symbol)) {
 				CurrencyMetadatas::<T>::get(CurrencyId::Token(token_symbol))
-			} else if token_symbol == TokenSymbol::BNC
+			} else if token_symbol == TokenSymbol::TNT
 				&& CurrencyMetadatas::<T>::contains_key(CurrencyId::Native(token_symbol))
 			{
 				CurrencyMetadatas::<T>::get(CurrencyId::Native(token_symbol))
