@@ -1010,13 +1010,8 @@ pub mod pallet {
 			Self::do_create(depositor, amount, root, nominator, bouncer, pool_id, name, chain_id)
 		}
 
-		/// Nominate on behalf of the pool.
-		///
-		/// The dispatch origin of this call must be signed by the pool nominator or the pool
-		/// root role.
-		///
-		/// This directly forward the call to the staking pallet, on behalf of the pool bonded
-		/// account.
+		/// This function is a stub that does nothing. The primary paath to nominate is through the
+		/// SLP pallet. This function is preserved to ensure that there are no breaking changes.
 		#[pallet::call_index(8)]
 		#[pallet::weight(T::WeightInfo::nominate(validators.len() as u32))]
 		pub fn nominate(
@@ -1026,10 +1021,6 @@ pub mod pallet {
 			validators: Vec<T::AccountId>,
 		) -> DispatchResult {
 			let who = ensure_signed(origin)?;
-			// will be handled in slp pallet
-			// let bonded_pool = BondedPool::<T>::get(pool_id).ok_or(Error::<T>::PoolNotFound)?;
-			// ensure!(bonded_pool.can_nominate(&who), Error::<T>::NotNominator);
-			// T::Staking::bond(&bonded_pool.bonded_account(), amount, bonded_pool.chain_id, None)
 			Ok(())
 		}
 
