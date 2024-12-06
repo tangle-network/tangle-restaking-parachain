@@ -10,6 +10,7 @@ pub mod apis;
 #[cfg(feature = "runtime-benchmarks")]
 mod benchmarks;
 mod configs;
+mod ismp;
 mod weights;
 
 extern crate alloc;
