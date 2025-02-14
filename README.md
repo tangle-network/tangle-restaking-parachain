@@ -3,8 +3,8 @@
 <h1 align="left">Tangle Parachain</a></h1>
 
 <p align="left">
-	
-Tangle's Parachain is an operation specific liquid staking system built off [Bifrost's LST system](https://github.com/bifrost-finance/bifrost/tree/develop/pallets) but with modifications to enable finer-grained customizability. We leverage the LSTs primarily for [Tangle's restaking infrastructure](https://github.com/webb-tools/tangle), rather than DeFi, as our main intention of creating liquid staking tokens in the Polkadot/Kusama ecosystem. The liquid staking system allows users to bond and nominate specifically chosen validators (or use programmatic defaults) while minting a liquid staked token representative of their nominations. We plan to support major parachains staking operations such as Polkadot's validator staking, Astar's dApp staking, Phala's vault staking, Moonbeam's parachain staking, and more.
+
+Tangle's Parachain is an operation specific liquid staking system built off [Bifrost's LST system](https://github.com/bifrost-finance/bifrost/tree/develop/pallets) but with modifications to enable finer-grained customizability. We leverage the LSTs primarily for [Tangle's restaking infrastructure](https://github.com/tangle-network/tangle), rather than DeFi, as our main intention of creating liquid staking tokens in the Polkadot/Kusama ecosystem. The liquid staking system allows users to bond and nominate specifically chosen validators (or use programmatic defaults) while minting a liquid staked token representative of their nominations. We plan to support major parachains staking operations such as Polkadot's validator staking, Astar's dApp staking, Phala's vault staking, Moonbeam's parachain staking, and more.
 
 Tangle's Parachain allows easy access to Polkadot liquidity for augmenting the security of Tangle's restaking infrastructure on Tangle mainnet. By minting liquid staked assets, users gain opportunities to secure restaking services, specifically [Blueprints](https://docs.tangle.tools/developers/blueprints), deployed on Tangle.
 

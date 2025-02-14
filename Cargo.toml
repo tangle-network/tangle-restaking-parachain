@@ -1,10 +1,10 @@
 [workspace.package]
 version = "0.1.0"
-authors = ["Webb Technologies Inc."]
+authors = ["Tangle Network"]
 edition = "2021"
 license = "Unlicense"
 homepage = "https://tangle.network"
-repository = "https://github.com/webb-tools/tangle-restaking-parachain"
+repository = "https://github.com/tangle-network/tangle-restaking-parachain"
 
 cargo-features = ["resolver"]
 

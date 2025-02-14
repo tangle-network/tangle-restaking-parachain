@@ -1,7 +1,7 @@
 {
-  "name": "@webb-tools/tangle-restaking-types",
+  "name": "@tangle-network/tangle-restaking-types",
   "version": "0.1.0",
-  "description": "Polkadot.js type definitions required for interacting with Webb's tangle network",
+  "description": "Polkadot.js type definitions required for interacting with Tangle Network",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
   "typings": "./build/index.d.ts",
@@ -11,11 +11,11 @@
     "access": "public",
     "registry": "https://registry.npmjs.org"
   },
-  "repository": "https://github.com/webb-tools/tangle-restaking-parachain.git",
+  "repository": "https://github.com/tangle-network/tangle-restaking-parachain.git",
   "bugs": {
-    "url": "https://github.com/webb-tools/tangle-restaking-parachain/issues"
+    "url": "https://github.com/tangle-network/tangle-restaking-parachain/issues"
   },
-  "homepage": "https://github.com/webb-tools/tangle-restaking-parachain",
+  "homepage": "https://github.com/tangle-network/tangle-restaking-parachain",
   "dependencies": {
     "@babel/cli": "^7.23.9",
     "@babel/core": "^7.24.0",
@@ -62,7 +62,7 @@
   "scripts": {
     "build": "node ./scripts/build.js",
     "build:interfaces": "yarn build:interfaces:defs && yarn build:interfaces:chain && rm ./src/interfaces/index.ts && rm ./src/interfaces/types.ts",
-    "build:interfaces:defs": "npx ts-node node_modules/.bin/polkadot-types-from-defs --input ./src/interfaces --package @webb-tools/tangle-substrate-types --endpoint ./src/metadata/metadata.json",
+    "build:interfaces:defs": "npx ts-node node_modules/.bin/polkadot-types-from-defs --input ./src/interfaces --package @tangle-network/tangle-substrate-types --endpoint ./src/metadata/metadata.json",
     "build:interfaces:chain": "npx ts-node node_modules/.bin/polkadot-types-from-chain --endpoint ./src/metadata/metadata.json --output ./src/interfaces",
     "clean": "rm -rf build && rm -rf ts-types",
     "format": "prettier -w '**/*.ts'",

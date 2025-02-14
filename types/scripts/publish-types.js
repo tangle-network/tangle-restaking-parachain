@@ -57,9 +57,9 @@ function npmPublish() {
   // in the export paths before copying to the output 'build' folder for publishing.
   // The 'build/' in the path exists for packages to resolve properly while using
   // webb.js locally.
-  //    e.g. the '@webb-tools/test-utils' package needs this to properly resolve
-  //         methods in '@webb-tools/sdk-core' because it imports '@webb-tools/utils'
-  //         which uses '@webb-tools/sdk-core' in its dependencies. 
+  //    e.g. the '@tangle-network/test-utils' package needs this to properly resolve
+  //         methods in '@tangle-network/sdk-core' because it imports '@tangle-network/utils'
+  //         which uses '@tangle-network/sdk-core' in its dependencies. 
   const raw = fs.readFileSync('./package.json');
   const pkg = JSON.parse(raw);
   const pkgString = JSON.stringify(pkg);
