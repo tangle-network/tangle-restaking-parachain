@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 // This file is part of Tangle.
-// Copyright (C) 2022-2024 Webb Technologies Inc.
+// Copyright (C) 2022-2025 Tangle Network.
 // SPDX-License-Identifier: Apache-2.0
-// This file has been modified by Webb Technologies Inc.
+// This file has been modified by Tangle Network.
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
